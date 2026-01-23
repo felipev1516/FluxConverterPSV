@@ -1,4 +1,5 @@
 <pre>
+# File Structure in this directory
 |-- lib/
     |-- ffmpeg.exe                         # The video encoder program
     |-- Invoke-FluxConverterLibrary.ps1    # Calls all scripts from this lib\ directory
