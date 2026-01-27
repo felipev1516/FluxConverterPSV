@@ -1,0 +1,122 @@
+1.4.5: 
+- Fixed Build number issue (If user where to put a space after the text the program failed to drop media 
+to the appropriate directory)
+- Added Unblock file command in run.bat and debug.bat to prevent security warning prompt for new users accessing the flux converter for the first time
+- Added events for second form in the git_installer.ps1, implemented a refresh function to detect git installation file in download directory.
+- Added Version number on bottom left of main Flux Converter Gui
+- Added change.log file to notify user of changes/modifications
+- Removed flux and flux.pub keys in .ssh folder and config has a placeholder text to prompt user to paste new key name.
+
+2.0.0: 
+- New GUI interface:
+	- New Rename Format Selection (Preset, Custom, None)
+	- Preset Screen moved check boxes to lower left of GUI
+	- Custom Screen added Video, Pictures, Text, Build Text inputs
+	- None Screen Disables all input fields and user would need to specify flux files drop off folder
+	- Added Snipping Tool Button
+
+2.0.1: 
+- Fix logic errors in code:
+	- Fix issue where if If the directory of media is originally in any folder in the flux converter repository 
+	and is dropped into the drop down and fluxed, that media item will not move to the target folder/directory
+	- Fix Issue where network error and restart program message will not prompt user
+	- Fix Issue where Text fields in custom option does not clear after reset button press
+	- Fix Issue with debug.bat file closing when selecting run program with terminal
+2.0.2:
+- Moving off of github update:
+	- Due to manager request this version of the flux converter will no longer have github supported updates
+	- Files will be pulled from ATVIQA Server
+2.0.3:
+- Change default txt and log rename format:
+	- The default text file extentions was following a previous ATVI project curriculum so need to change to a neutral format.
+	- Old txt format: dxdiag_(PROJECT)_BUG#_PROJECT#_ATVICOMPUTER#_BRANCH_BUILD#_
+	- New txt format: ATVIQA_PROJECT-BUG#_BUILD#
+	- Old Log Format: ATVIQA_PROJECT-BUG#_BUILD#_
+	- New Log Format: ATVIQA_PROJECT-BUG#_BUILD#
+	- Old INI format: ini_PROJECT-BUG#_BUILD#_
+	- New INI format: ATVIQA_PROJECT-BUG#_BUILD#
+	- Old CFG format: Config_DEVICE_PROJECT_BUG#_BUILD#_
+	- New CFG format: ATVIQA_PROJECT-BUG#_BUILD#
+- Added .config file support:
+	- CONFIG format: ATVIQA_PROJECT-BUG#_BUILD#
+2.0.4:
+- Added Preset rename format overide option:
+	- User is able to assess this feature through the settings tab
+	- The following are available
+		- A drop down combo box with suppoted media extentions
+		- A text box to input the preset rename format
+		- A Text box that previews the given input
+- Changed preset input field text: 
+	- {pro} -> {project}
+	- {bug} -> {bug}
+	- {dev} -> {device}
+	- {bra} -> {branch}
+	- {bui} -> {build}
+	- {$env:computername} -> {computername}
+- Added Automatic Flux Converter User Manual Update Feature:
+	- Any User Manual updates will change the second digit of the version number -> 2.#.0
+	- Hot fixes will remain to change the second digit of the version number
+- Fix where setting tab will not resume after application close out
+- Fix issue where Flux Converter extended tab does not remain intact when changing from setting tab
+- Fix issue where flux button is enabled when quality is not set while in the custom or none rename format selections
+- Fix issue where {$env:computer} preset field text will not display computer name
+- Fix issue where if user inputs any illegal characters in any rename input parameter the program will not work properly 
+- Program may experience a rendering issue when the UI rapidly changes and moved
+2.1.4:
+- Fix issue where the change preset rename format preview text will not display the programs default rename format value
+- Added old preset input field text converter
+- Update should delete and replace HowToFlux.docx file
+2.0.5:
+- Fix UI mapping issue where selecting any options via Tab 	button would not transition correctly in an organized manner
+2.0.6:
+- Fixed opt in save files that are located in the Flux Converter Root folder not being placed in the save files folder after flux operation
+- Added file duplication prevention during the renaming function (target folders that contains the same pre flux file name will have a iteration number 
+applied in title ex. test.txt -> test(1).txt if test.txt file is in both flux converter program and destination folder)
+3.0.0:
+- Custom Video output setting update:
+	- This update will allow users to change the ffmpeg parameters in the settings tab
+	(-r Set Framerate, -s Set Framesize, -b:v #k Set Bitrate, -aspect Set Video Display Aspect Ratio)
+	- Allows the user to select different video format output
+	(.mp4 (default), .mov, .mkv, .avi)
+	- Allows the user to select different picture format output
+	(.jpg (default), .jpeg, .png)
+	- Allows the user to select different text format output
+	(.txt (default), .log, .ini, .cfg, .config)
+- Added tip tools for the following buttons: 
+	Drop Box Reset
+	Drop Box Add
+	Drop Box Remove
+	Microsoft Paint
+	Snipping Tool
+- Added a verify option for verified media
+- Added a file renaming tool to specify the renaming format for the specified output media according to its extention. This can also 
+add a custom label for media meant for verifies
+- Added prompt over drop box to indicate where the files can land
+- Added update available prompt when opening the application
+- Change the flux flow and have the files move to the new folder (Jira/Regression panel is active), or the
+folder of there liking (Custom/None Panel are active) instead of dumping it in the root folder and
+moving it to the target folder
+- Fixed the Flux converter error prompt open when the program detects that the fluxed files on the 
+current session made it in the target folder instead of detecting that the folder has files.
+- Update script has been improved to implement hotfixes
+- The HowtoFlux.docx is replaced by the sharepoint version
+- Fixed issue were the application failed to fluxed the last item
+- New Known issue: Media that is encoded in hevc can not open using the default video player. Please use VLC to open these types of files
+3.0.1:
+- Fixed aspect ratio customization. Now users can add custom ratios ex: 17:9, 19.8:9, 18:5, etc. by clearing out Aspect Ratio field
+- Added Delete and backspace keyboard short cut to eliminate items in the drop box (Backspace & Delete will remove indiviual
+selected items; Control + Shift Backspace/Delete will clear out the drop box)
+- Known issue: Media that is encoded in hevc can not open using the default video player. Please use VLC to open these types of files
+3.0.2
+- Fixed a issue where media marked for moving into target folder and saved files folder were not being renamed into the correct label causing files to be 
+deleted and other files to have incorrect labels applied to them.
+4.0.0
+- Change Drop Box Items Name into just Name not Full directory 
+- Add a drag/move on listview to change ranking
+Test-Path : Cannot bind argument to parameter 'Path' because it is null.
+At C:\Users\felip\Downloads\GitHub\FluxConverter\data\gui.ps1:456 char:17
++         if(!(Test-Path($array[$index])))
++                       ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidData: (:) [Test-Path], ParameterBindingValidationException
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorNullNotAllowed,Microsoft.PowerShell.Commands.TestPa  
+   thCommand
