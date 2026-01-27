@@ -18,4 +18,3 @@
     |-- Split-Path-Ext.ps1                 # PowerShell 5.4 lacks Split-Path -Ext
     |-- Invoke-ConfigManager.ps1           # Create config file if missing, load defaults
 </pre>
->>>>>>> FLUX-6-lib
