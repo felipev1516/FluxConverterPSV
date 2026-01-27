@@ -9,48 +9,50 @@ function Invoke-ConfigManager {
     if(!(Test-Path "$config_dir\default.cfg")){
         ni "$config_dir\default.cfg" -type File
         [string[]] $default = @(
-        "project=`"`"",`
-        "bug_number=`"`"",`
-        "device=`"`"",`
-        "build_type=`"`"", `
-        "build_number=`"`"",`
-        "audio=`"`"",`
-        "quality=`"`"",`
-        "encoder=`"`"",`
-        "save=`"`"",`
-        "extended=`"`"",`
-        "verify=`"`"",`
-        "video_text=`"`"",`
-        "pic_text=`"`"",`
-        "text_text=`"`"",`
-        "fps=`"`"",`
-        "bit=`"`"",`
-        "frame=`"`"",`
-        "ratio=`"`"",`
-        "preset_vid=`"`"",`
-        "preset_pic=`"`"",`
-        "preset_txt=`"`"",`
-        "preset_ini=`"`"",`
-        "preset_log=`"`"",`
-        "preset_cfg=`"`"",`
-        "preset_config=`"`"",`
-        "regress_vid=`"`"",`
-        "regress_pic=`"`"",`
-        "regress_txt=`"`"",`
-        "regress_ini=`"`"",`
-        "regress_log=`"`"",`
-        "regress_cfg=`"`"",`
-        "regress_config=`"`"",`
-        "rename_format=`"`"",`
-        "vid_ext=`"`"",`
-        "pic_ext=`"`"",`
-        "text_ext=`"`""
+        "project=",`
+        "bug_number=",`
+        "device=",`
+        "build_type=", `
+        "build_number=",`
+        "audio=",`
+        "quality=",`
+        "encoder=",`
+        "save=",`
+        "extended=",`
+        "verify=",`
+        "video_text=",`
+        "pic_text=",`
+        "text_text=",`
+        "fps=15",`
+        "bit=3500",`
+        "frame=720",`
+        "ratio=auto",`
+        "preset_vid={project}-{bug}_{device}_{build}_{1}",`
+        "preset_pic={project}-{bug}_{device}_{build}_{1}",`
+        "preset_txt={project}-{bug}_{device}_{build}_{1}",`
+        "preset_ini={project}-{bug}_{device}_{build}_{1}",`
+        "preset_log={project}-{bug}_{device}_{build}_{1}",`
+        "preset_cfg={project}-{bug}_{device}_{build}_{1}",`
+        "preset_config={project}-{bug}_{device}_{build}_{1}",`
+        "regress_vid=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_pic=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_txt=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_ini=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_log=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_cfg=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "regress_config=Open_Issue_{project}-{bug}_{device}_{build}_{1}",`
+        "rename_format=1",`
+        "vid_ext=None",`
+        "pic_ext=None",`
+        "text_ext=None"
         )
         $default | %{$_ >> "$config_dir\default.cfg"}
-        if(!(Test-Path "$config_dir\last_state.cfg")){
+        
+    }
+    
+    if(!(Test-Path "$config_dir\last_state.cfg")){
             New-Item "$config_dir\last_state.cfg" -type File
             $(cat "$config_dir\default.cfg") >> "$config_dir\last_state.cfg"
-        }
     }
 
     if(!(Test-Path "$config_dir\supported_video_ext.cfg")){

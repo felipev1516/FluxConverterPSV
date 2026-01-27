@@ -750,6 +750,7 @@ $Replace_LegacyAbbrevText = {
 }
 
 # Load GUI Values from Config File
+# 1/27/2026 In-Development
 $load_gui_values = {
     param([string] $Load_dir)
     if (!(Test-Path($Load_dir))){
@@ -936,12 +937,16 @@ $format = {
 }
 
 # Save GUI Values to Config File
+# 1/27/2026 In-Development
 $save_gui_values = {
     param([string] $Save_dir)
     if(!(Test-Path($Save_dir))){
 		New-Item -Itemtype File -Path $Save_dir
-	}
-    $buffer = @(); $buffer = &$coe_validator
+	}else{
+        Remove-Item $Save_dir
+        New-Item -Itemtype File -Path $Save_dir
+    }
+    [string[]] $buffer = &$coe_validator
     $global:vid_select = $buffer[0];$global:pic_select = $buffer[1];$global:text_select = $buffer[2]
 
     if($Check_Box.Checked){[string] $temp_1 = "1"}Else{[string] $temp_1 = "0"}
@@ -1042,7 +1047,7 @@ $form_keystrokes = {
         &$Clear_Event
     }
     if($_.keycode -eq "Back" -or $_.keycode -eq "Delete"){
-        &$delete_event
+        &$delete_dropbox_click
     }
     if($_.Control -and  $_.keycode -eq "M"){
         &$ms_paint_event
@@ -1059,10 +1064,12 @@ $key_event = {
 }
 
 # Form Loading Event
+# 1/27/2026 In-Development
 $form_loading = {
     # Initialize Config Manager
     . Invoke-ConfigManager
-    [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.txt"
+    [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.cfg"
+    Write-Host "Extract Directory: $Save_dir Result: $(Test-Path $Save_dir)"
 
     # Populate Combobox with values from Config files
     # Device Types
@@ -1098,10 +1105,12 @@ $gui_refresh = {
 }
 
 # Form Closing Event
+# 1/27/2026 In-Development
 $form_closing = {
     # Save current GUI values to last_state.txt
-    [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.txt"
+    [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.cfg"
     &$save_gui_values -Save_dir $Save_dir
+    write-host "Last State Values: $(Get-ConfigFileValues $Save_dir)"
     &$clear_selections
     &$form_dispose
 }

@@ -1,6 +1,6 @@
 # Unblock the corresponding files
-Unblock-File .\main_form.designer.ps1
-Unblock-File .\main_form.events.ps1
+Unblock-File "$PSScriptRoot\main_form.designer.ps1"
+Unblock-File "$PSScriptRoot\main_form.events.ps1"
 # The FluxConverter Library
 . "$PSScriptRoot\..\..\lib\Invoke-FluxConverterLibrary.ps1"
 . Invoke-FluxConverterLibrary
