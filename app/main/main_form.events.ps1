@@ -3,6 +3,9 @@
 # Configuration Path
 $config_path = "$(Get-RootDirectory)\config"
 
+# Profile Path
+$profile_path = "$(Get-RootDirectory)\profiles"
+
 # Supported Extensions Arrays
 [string[]] $supported_ext = $(cat "$config_path\supported_pic_ext.cfg" | %{"*.$_"}) + `
                             $(cat "$config_path\supported_video_ext.cfg" | %{"*.$_"}) + `
@@ -22,31 +25,59 @@ $config_path = "$(Get-RootDirectory)\config"
 [string] $global:text_select = ""
 
 # After using the OpenFileDialog, this variable will hold the last path used
-[string] $global:last_path = ""
+[string] $global:last_path = $profile_path
+[string] $global:last_file = ""
+[string] $global:full_last_file_path = ""
+#write-host "Root Directory: $(Get-RootDirectory)"
+#write-host "Last Path: $global:last_path | Result $(Test-Path $global:last_path)"
+#pause
 
 # $global:full_path will hold all files that are currently in the DropBox Listbox and Root Folder
-$global:full_path = (Get-RootFolderItems -SupportedExtensions $supported_ext)
+[string[]] $global:full_path = (Get-RootFolderItems -SupportedExtensions $supported_ext)
 # DropBox.Items will collect only file names for better readability
 
 # MenuStrip Events on main form
 # Load Text Fields with Config Data
 $tmi_load_event = {
-    $Load_dir = $(Invoke-OpenFileDialog -initialDirectory "$(Get-RootDirectory)\profiles\" -multiSelect $False).filename
-    $global:last_path = (Split-Path $Load_dir -parent)
+    [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $False)
+    
     # load_gui_values function called here
-    if(!($Load_dir -eq "")){&$load_gui_values -Load_dir $Load_dir}
+    if(Test-Path $Load_dir.FileName){
+        $global:full_last_file_path = ($Load_dir.FileName)
+        &$load_gui_values -Load_dir $Load_dir.FileName
+    }
 }
 
 $tmi_open_event = {
-    $Load_dir = $(Invoke-OpenFileDialog -initialDirectory "$home\Downloads" -multiSelect $True).filename
-    if(!($Load_dir.filenames -eq "")){
+    [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $True)
+    if(Test-Path $Load_dir.filenames[0]){
         foreach($file in $Load_dir.filenames){
             &$add_to_dropbox -files $file
         }
     }
     &$check_if_change
+    $Load_dir.Dispose()
 }
 
+$tmi_save_event = {
+    if(!(Test-Path $global:full_last_file_path)){
+        &$tmi_saveas_event
+    }else{
+        &$save_gui_values -Save_dir $global:full_last_file_path
+    }
+}
+
+# Save Text Fields in the New Profile Folder
+$tmi_saveas_event = {
+
+    [System.Windows.Forms.SaveFileDialog] $Save_dir = $(Invoke-SaveFileDialog -initialDirectory $global:last_path)
+    if(!($Save_dir.filename -eq "")){
+        $global:full_last_file_path = $Save_dir.FileName
+        &$save_gui_values -Save_dir $Save_dir.FileName
+       
+    }
+    $Save_dir.dispose()
+}
 # $format_tmi_reset Click Event
 $format_tmi_reset_click = {
      # This will call the attention form to prompt user for reset confirmation
@@ -379,7 +410,7 @@ $add_drop_button_click = {
         $global:last_path = (Split-Path $Load_dir.filenames[0] -parent)
     }
 
-    if(!($Load_dir.filenames -eq "")){
+    if(!($Load_dir.filenames[0] -eq "")){
         foreach($file in $Load_dir.filenames)
         {
             &$add_to_dropbox -files $file
@@ -474,8 +505,7 @@ $add_to_dropbox = {
         return
     }
 	$DropBox.BeginUpdate();
-	foreach($case in $supported_ext)
-	{
+	foreach($case in $supported_ext){
 		if($files -like $case){
 			if($files -notin $global:full_path){ #Prevent Duplicating Drag&Drop Item with Existing file in Root folder
                 $global:full_path += $files
@@ -525,7 +555,7 @@ $remove_from_list = {
 $flux_button_click = {
     [string] $temp_ext = ""
 	[boolean] $result
-	[string[]] $buffer = coe_validator
+	[string[]] $buffer = &$coe_validator
 	[int] $file_transferred = $DropBox.Items.Count; [int] $file_index = 0
 	$global:vid_select = $buffer[0];$global:pic_select = $buffer[1];$global:text_select = $buffer[2]
 
@@ -664,6 +694,7 @@ $flux_button_click = {
 	}
 	return
 }
+
 # Checks if listed items from drop box are still in the directories
 # Also checks if root folder items are still valid
 $check_if_change = {
@@ -708,7 +739,7 @@ $check_root_folder =  {
 $Replace_AbbrevText = {
 	param([string]$input_buffer)
 	$input_buffer = &$Replace_LegacyAbbrevText -buffer $input_buffer
-	$abbrev = Get-Content "$PSScriptRoot\..\config\abbreviations.cfg"
+	$abbrev = Get-Content "$(Get-RootDirectory)\config\abbreviations.cfg"
 	$input_buffer = Remove-IllegalChar -buffer $input_buffer
 	foreach($items in $abbrev){
         if($items -eq "{project}"){
@@ -736,7 +767,7 @@ $Replace_AbbrevText = {
 # Checks and replaces legacy abbreviation texts in the input buffer
 $Replace_LegacyAbbrevText = {
     param([string]$buffer)
-    $abbrev_legacy = Get-Content "$PSScriptRoot\..\config\legacy_abbreviations.cfg"
+    $abbrev_legacy = Get-Content "$(Get-RootDirectory)\config\legacy_abbreviations.cfg"
     foreach($items in $abbrev_legacy){
         switch($items){
             "{Pro}" { $buffer = $buffer.replace($items,"$($Project_TextBox.Text)")}
@@ -751,6 +782,7 @@ $Replace_LegacyAbbrevText = {
 
 # Load GUI Values from Config File
 # 1/27/2026 In-Development
+# Will Return a parent directory
 $load_gui_values = {
     param([string] $Load_dir)
     if (!(Test-Path($Load_dir))){
@@ -849,8 +881,8 @@ $load_gui_values = {
             &$T_None
         }
     }
-    #Set_ReadOnly_Value "save_file_dir" $Load_dir
-	
+    
+    return [string]$(Split-Path $($Load_dir) -Parent)
 }
 
 # Blank all UI Elements
@@ -940,12 +972,16 @@ $format = {
 # 1/27/2026 In-Development
 $save_gui_values = {
     param([string] $Save_dir)
+   
     if(!(Test-Path($Save_dir))){
 		New-Item -Itemtype File -Path $Save_dir
 	}else{
         Remove-Item $Save_dir
-        New-Item -Itemtype File -Path $Save_dir
+        New-Item -Name "$(Split-Path $Save_dir -leaf)"`
+        -Itemtype File `
+        -Path (Split-Path $Save_dir -parent)
     }
+    
     [string[]] $buffer = &$coe_validator
     $global:vid_select = $buffer[0];$global:pic_select = $buffer[1];$global:text_select = $buffer[2]
 
@@ -1002,9 +1038,8 @@ $save_gui_values = {
     "vid_ext=$($global:vid_select)" >> $Save_dir
     "pic_ext=$($global:pic_select)" >> $Save_dir
     "text_ext=$($global:text_select)" >> $Save_dir
-
-    $global:last_path = (Split-Path $Save_dir -parent)
 }
+
 
 # Validate selected extensions for fluxing
 $coe_validator = {
@@ -1068,9 +1103,9 @@ $key_event = {
 $form_loading = {
     # Initialize Config Manager
     . Invoke-ConfigManager
-    [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.cfg"
-    Write-Host "Extract Directory: $Save_dir Result: $(Test-Path $Save_dir)"
-
+    [string] $Load_dir = "$(Get-RootDirectory)\config\last_state.cfg"
+    #Write-Host "Extract Directory: $Save_dir Result: $(Test-Path $Save_dir)"
+    
     # Populate Combobox with values from Config files
     # Device Types
     [string[]] $supported_device_types = Get-Content "$config_path\supported_device_types.cfg"
@@ -1089,7 +1124,8 @@ $form_loading = {
     $Quality_List.SelectedIndex = 0
     # Load Values from last session
     # UI elements will be populated based on the last saved session
-	&$load_gui_values -Load_dir $Save_dir
+	$global:last_path = &$load_gui_values -Load_dir $Load_dir
+    #write-host "Global Preset Values from main form: $global:Preset_values"
 }
 
 # Form Refresh Event
@@ -1110,7 +1146,7 @@ $form_closing = {
     # Save current GUI values to last_state.txt
     [string] $Save_dir = "$(Get-RootDirectory)\config\last_state.cfg"
     &$save_gui_values -Save_dir $Save_dir
-    write-host "Last State Values: $(Get-ConfigFileValues $Save_dir)"
+    #write-host "Last State Values: $(Get-ConfigFileValues $Save_dir)"
     &$clear_selections
     &$form_dispose
 }

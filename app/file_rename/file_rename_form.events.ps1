@@ -1,4 +1,5 @@
 # Note: You need to run the main_form.ps1 before this script to ensure all variables and controls are properly initialized.
+
 . "$PSScriptRoot\file_rename_form.designer.ps1"
 
 $retain_values = {
@@ -176,7 +177,7 @@ $file_tmi_open_1_click = {
     }
 }
 
-$File_Rename_Form_Shown = {
+$form_load = {
     if($profile_tmi_jira.Checked){
         &$load_event -tb $Rename_TextBox -cb $Type_ComboBox -v $global:Preset_values -pv $Preview_TextBox
     }else{

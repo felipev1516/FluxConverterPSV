@@ -4,7 +4,7 @@ function Invoke-OpenFileDialog {
 
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog -Property @{
         Title = "Select File to Open"
-        RestoreDirectory = $true
+        #RestoreDirectory = $true
         initialDirectory = $initialDirectory
         filter = "All files (*.*)| *.*"
     }

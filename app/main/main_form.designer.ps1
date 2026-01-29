@@ -49,13 +49,13 @@ $file_tmi_open = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 $file_tmi_save = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Save"
     ShortcutKeys = "Ctrl + S"
-}; #$file_tmi_save.Add_click()
+}; $file_tmi_save.Add_click($tmi_save_event)
 
 #save as
 $file_tmi_saveas = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Save As"
     ShortcutKeys = "Ctrl + Shift + S"
-}; #$file_tmi_saveas.Add_click()
+}; $file_tmi_saveas.Add_click($tmi_saveas_event)
 
 #separator
 $file_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
