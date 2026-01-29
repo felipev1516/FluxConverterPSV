@@ -29,26 +29,28 @@ $mst_tmi_file = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "File"
 }
 
-# Load Text Files
+# File - Load Text Files
 $file_tmi_open_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Load Text Fields"
     ShortcutKeys = "Ctrl + O"
 };$file_tmi_open_1.Add_Click({&$file_tmi_open_1_click})
 
-# Save
+# File - Save
 $file_tmi_save_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Save"
     ShortcutKeys = "Ctrl + S"
 };$file_tmi_save_1.Add_Click({&$file_tmi_save_1_click})
 
-# Save As
+# File - Save As
 $file_tmi_saveas_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Save As"
     ShortcutKeys = "Ctrl + Shift + S"
 };$file_tmi_saveas_1.Add_Click({&$file_tmi_saveas_1_click})
 
+# File - Separator
 $file_tmi_sep_1 = New-Object System.Windows.Forms.ToolStripSeparator
 
+# File - Exit
 $file_tmi_exit_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Exit"
     ShortcutKeys = "Alt, F4"
@@ -56,30 +58,37 @@ $file_tmi_exit_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @
 
 $mst_tmi_file.DropDownItems.AddRange(@($file_tmi_open_1;$file_tmi_save_1;$file_tmi_saveas_1;$file_tmi_sep_1;$file_tmi_exit_1))
 
+# Profile 
 $mst_tmi_profile = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Profile"
 }
 
+# Profile - New Ticket
 $profile_tmi_jira = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "New Ticket"
 };$profile_tmi_jira.Add_Click({&$profile_tmi_jira_click})
 
+# Profile - Verify
 $profile_tmi_regression = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Verify"
 };$profile_tmi_regression.Add_Click({&$profile_tmi_regression_click})
 
 $mst_tmi_profile.DropDownItems.AddRange(@($profile_tmi_jira,$profile_tmi_regression))
 
+# Settings
 $mst_tmi_settings = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Settings"
 }
 
+# Settings - Clear
 $settings_tmi_clear_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Clear"
 };$settings_tmi_clear_1.Add_Click({&$settings_tmi_clear_1_click})
 
+# Settings - Separator
 $settings_tmi_sep_1 = New-Object System.Windows.Forms.ToolStripSeparator 
 
+# Setting - Clear All
 $settings_tmi_clearall_1 = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Clear All"
 };$settings_tmi_clearall_1.Add_Click({&$settings_tmi_clearall_1_click})
@@ -88,6 +97,8 @@ $mst_tmi_settings.DropDownItems.AddRange(@($settings_tmi_clear_1,$settings_tmi_s
 
 $File_Rename_mst.Items.AddRange(@($mst_tmi_file,$mst_tmi_profile,$mst_tmi_settings))
 
+# File Rename Form Objects
+# 
 $Preview_Label = New-Object System.Windows.Forms.Label -Property @{
     Text = "Preview:"
     TextAlign = "MiddleCenter"

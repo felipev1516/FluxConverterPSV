@@ -204,6 +204,17 @@ $T_None = {
     $text_tmi_none.Checked = $True
 }
 
+# Backup - Yes Option Event
+$backup_yes_click = {
+    $backup_tmi_yes.Checked = $True
+    $backup_tmi_no.Checked = $False
+}
+
+# Backup - No Option Event
+$backup_no_click = {
+    $backup_tmi_yes.Checked = $False
+    $backup_tmi_no.Checked = $True
+}
 # Patch Notes Option Event
 $patch_option_click = {
     notepad "$(Get-RootDirectory)\assets\notes\patch-notes.txt"
@@ -616,7 +627,7 @@ $flux_button_click = {
 				param([string] $in, [string] $out, [string] $extention)
 				[string] $newname = ""
 				#Keep a copy of media with the original title
-				if($in -like "*$PWD*" -and $Save_Files_Box.Checked){
+				if($in -like "*$PWD*" -and $backup_tmi_yes.Checked){
 					$newname = duplicate_file_prevention $in "$PWD\saved_files\" $(Split-Path-Ext($in))
 					Copy-Item $in -Destination "$PWD\saved_files\$($newname)"
 				}
@@ -629,7 +640,7 @@ $flux_button_click = {
 				}
 				if($just_rename -or $temp_ext -in $supported_txt_ext){
 					$newname = $newname.replace($(Split-Path-Ext($newname)),$extention)
-					if(!$Save_Files_Box.Checked){
+					if(!$backup_tmi_yes.Checked){
 						Move-Item $in -Destination "$($out)\$($newname)"
 					}else{
 						Copy-Item $in -Destination "$($out)\$($newname)"
@@ -645,7 +656,7 @@ $flux_button_click = {
 					if(!$(ffmpeg $in $newname $out $extention)){
 						return $false
 					}else{
-						if(!$Save_Files_Box.Checked){
+						if(!$backup_tmi_yes.Checked){
 							Remove-Item $in
 							$DropBox.Items.RemoveAt($index)
 							$global:array = $global:array.where{$_ -ne $global:array[$index]}
@@ -895,7 +906,7 @@ $blank_ui = {
     $Check_Box.Checked = $False
     $Quality_List.SelectedIndex = 0
     $Nvidia_Box.Checked = $False
-    $Save_Files_Box.Checked = $False
+    $backup_tmi_yes.Checked = $False
     $verify_cbx.Checked = $False
     $Video_TextBox.Text = ""
     $Picture_TextBox.Text = ""
@@ -920,7 +931,8 @@ $format = {
     if($values[5] -eq "1"){$Check_Box.Checked = $True}Else{$Check_Box.Checked = $False}
     $Quality_List.Text 		= $values[6]
     if($values[7] -eq "1"){$Nvidia_Box.Checked = $True}Else{$Nvidia_Box.Checked = $False}
-    if($values[8] -eq "1"){$Save_Files_Box.Checked = $True}Else{$Save_Files_Box.Checked = $False}
+    if($values[8] -eq "1"){$backup_tmi_yes.Checked = $True; $backup_tmi_no.Checked = $False}Else{
+        $backup_tmi_yes.Checked = $False; $backup_tmi_no.Checked = $True}
     if($values[9] -eq "True"){&$Show_DropBox}Else{&$Hide_DropBox}
     if($old){
         switch($values[10]){
@@ -987,7 +999,7 @@ $save_gui_values = {
 
     if($Check_Box.Checked){[string] $temp_1 = "1"}Else{[string] $temp_1 = "0"}
     if($Nvidia_Box.Checked){[string] $temp_2 = "1"}Else{[string] $temp_2 = "0"}
-    if($Save_Files_Box.Checked){[string] $temp_3 = "1"}Else{[string] $temp_3 = "0"}
+    if($backup_tmi_yes.Checked){[string] $temp_3 = "1"}Else{[string] $temp_3 = "0"}
     if($verify_cbx.Checked -eq  $True){$temp_4 = "1"}Else{$temp_4 = "0"}
     
     switch($Jira_Panel){

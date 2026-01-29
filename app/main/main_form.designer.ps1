@@ -21,6 +21,8 @@ $main_form.Add_KeyDown($form_keystrokes)
 $main_form.Add_FormClosing($form_closing)
 $main_form.Add_Load($form_loading)
 
+# msi - Menu Strip
+# tmi - Tool Menu Item
 #Main Form Menu Strip
 $main_mst = New-Object System.Windows.Forms.MenuStrip -Property @{
     Width = $main_form.Width
@@ -109,12 +111,12 @@ $settings_tmi_crf = New-Object System.Windows.Forms.ToolStripMenuItem -Property 
     Text = "Change Renaming Format"
 }
 
-#Jira
+#Change Renaming Format - Jira
 $crf_tmi_jira = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "New Ticket"
 }; $crf_tmi_jira.Add_Click($crf_tmi_jira_click) # This is going to call the file_rename_form.events.ps1 function
 
-#Regression
+#Change Renaming Format - Regression
 $crf_tmi_regress = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Verify"
 }; $crf_tmi_regress.Add_Click($crf_tmi_regress_click) # This is going to call the file_rename_form.events.ps1 function
@@ -126,7 +128,7 @@ $settings_tmi_coe = New-Object System.Windows.Forms.ToolStripMenuItem -Property 
     Text = "Change Output Extentions"
 }
 
-#Video Extentions
+#Change Output Extentions - Video Extentions
 $coe_tmi_video = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Video"
 }
@@ -160,7 +162,7 @@ $video_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 
 $coe_tmi_video.DropDownItems.AddRange(@($video_tmi_mp4,$video_tmi_mov,$video_tmi_mkv,$video_tmi_avi,$video_tmi_sep,$video_tmi_none))
 
-#Picture Extentions
+#Change Output Extentions - Picture Extentions
 $coe_tmi_pic = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Pictures"
 }
@@ -186,7 +188,7 @@ $pic_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 
 $coe_tmi_pic.DropDownItems.Addrange(@($pic_tmi_jpg,$pic_tmi_jpeg,$pic_tmi_png,$pic_tmi_sep,$pic_tmi_none))
 
-#Text Extention
+#Change Output Extentions -Text Extention
 $coe_tmi_text = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Text"
 }
@@ -220,25 +222,50 @@ $text_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 $coe_tmi_text.DropDownItems.AddRange(@($text_tmi_text,$text_tmi_log,$text_tmi_ini,$text_tmi_cfg,$text_tmi_config,$text_tmi_sep,$text_tmi_none))
 $settings_tmi_coe.DropDownItems.AddRange(@($coe_tmi_video,$coe_tmi_pic,$coe_tmi_text))
 
-#Check For Update
+#In-Development 1/29/2026
+#Settings - Backup
+$settings_tmi_backup = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Save A Backup"
+    ToolTipText = "Save a copy of your fluxed files `n(Located in saved_files folder in Flux Converter directory)"
+}
+#Backup - Yes 
+$backup_tmi_yes = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Yes"
+};$backup_tmi_yes.Add_Click($backup_yes_click)
+
+#Backup - No
+$backup_tmi_no = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "No"
+};$backup_tmi_no.Add_Click($backup_no_click)
+
+$settings_tmi_backup.DropDownItems.AddRange((@($backup_tmi_yes,$backup_tmi_no)))
+
+#Settings - Seperator 1
+$settings_tmi_sep_1 = New-Object System.Windows.Forms.ToolStripSeparator
+
+#Settings - Check For Update
 $settings_tmi_cfu = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Check For Update"
 }; $settings_tmi_cfu.Add_Click($Check_For_Update)
 
-#Patch Notes
-$settings_tmi_patch = New-Object System.Windows.Forms.ToolStripMenuItem
-$settings_tmi_patch.Text = "Patch Notes"
-$settings_tmi_patch.Add_Click($patch_option_click)
+#Settings - Patch Notes
+$settings_tmi_patch = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Patch Notes"
+}; $settings_tmi_patch.Add_Click($patch_option_click)
 
-#Separator
-$settings_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
+#Settings - Help
+$settings_tmi_help = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Help"
+}; $settings_tmi_help.Add_Click($help_option_click)
 
-#Help
-$settings_tmi_help = New-Object System.Windows.Forms.ToolStripMenuItem
-$settings_tmi_help.Text = "Help"
-$settings_tmi_help.Add_Click($help_option_click)
-
-@($settings_tmi_crf,$settings_tmi_coe,$settings_tmi_cfu,$settings_tmi_patch,$settings_tmi_sep,$settings_tmi_help) | %{$main_tmi_settings.DropDownItems.Add($_)}
+@($settings_tmi_crf,
+    $settings_tmi_coe,
+    $settings_tmi_cfu,
+    $settings_tmi_backup,
+    $settings_tmi_sep_1,
+    $settings_tmi_patch,
+    $settings_tmi_help
+    ) | %{$main_tmi_settings.DropDownItems.Add($_)}
 
 @($main_tmi_file,$main_tmi_format,$main_tmi_settings) | %{$main_mst.Items.Add($_)}
 
@@ -620,24 +647,8 @@ $Nvidia_Lable = New-Object System.Windows.Forms.Label -Property @{
     Font     = "Microsoft Aldhabi, 11"
 }
 
-# Save Files CheckBox
-$Save_Files_Box = New-Object System.Windows.Forms.CheckBox -Property @{
-    AutoSize = $true
-    Location = New-Object System.Drawing.Point(5,65)
-    Checked  = $true
-}
-$Tooltip.SetToolTip(
-    $Save_Files_Box,
-    "Save a copy of your fluxed files (Located in save `nfiles folder in Flux Converter directory)"
-)
-
-# Save Files Label
-$Save_Files_Lable = New-Object System.Windows.Forms.Label -Property @{
-    Text     = "Save Files"
-    Location = New-Object System.Drawing.Point(22,60)
-    AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
-}
+# 1/29/2026
+# Removed Save Files Check Box
 
 # Rename Only Button
 $Rename_Button = New-Object System.Windows.Forms.Button -Property @{
@@ -799,7 +810,6 @@ $Media_Panel.Controls.Add($Check_Box)
 $Media_Panel.Controls.Add($Nvidia_Lable)
 $Media_Panel.Controls.Add($Nvidia_Box)
 $Media_Panel.Controls.Add($Save_Files_Lable)
-$Media_Panel.Controls.Add($Save_Files_Box)
 $Media_Panel.Controls.Add($Quality_List)
 $Media_Panel.Controls.Add($Quality_Label)
 $Media_Panel.Controls.Add($Rename_Button)
