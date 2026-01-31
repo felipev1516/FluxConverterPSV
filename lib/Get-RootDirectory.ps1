@@ -1,3 +1,3 @@
-function Get-RootDirectory {
-    return "$PSScriptRoot\.."
+function Get-RootDirectory{
+    return $(Resolve-Path "$PSScriptRoot\..").path
 }

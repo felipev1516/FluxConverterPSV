@@ -97,5 +97,6 @@ New Folder Layout
 |			|-- icons\
 |			|-- notes\
 |				|-- patch-notes.log
+|		|-- profiles\
 |
 </code>

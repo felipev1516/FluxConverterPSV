@@ -302,25 +302,7 @@ $quality_list_checker = {
 
 # Calling Update Form Event, Redo this later to make it cleaner
 $Check_For_Update = {
-    if(!(Test-Path "$PWD/data/update.ps1")){
-        if(!(Test-Path "$($remote)\data\update.ps1")){
-            ./data/UI/prompt.ps1 -pass $False
-        }else{
-            copy "$($remote)\data\update.ps1" $PSScriptRoot
-            if(!(Test-Path "$PWD/data/update.ps1")){
-                ./data/UI/prompt.ps1 -pass $False
-            }else{
-                ./data/update.ps1 -remote $remote -local $local -rule $rule
-            }
-        }
-    }else{
-        ./data/update.ps1 -remote $remote -local $local -rule $rule
-        if((Compare-Object $Version $(cat $PWD/data/Version.txt) -IncludeEqual).SideIndicator.contains("<=") `
-        -or (Compare-Object $Version $(cat $PWD/data/Version.txt) -IncludeEqual).SideIndicator.contains("=>")){
-            ./data/UI/prompt.ps1 -pass $True
-            $main_form.close()
-        }
-    }
+    . "$PSScriptroot\..\update\update_form.ps1" 
 }
 
 # DropBox Events
@@ -1138,6 +1120,9 @@ $form_loading = {
     # UI elements will be populated based on the last saved session
 	$global:last_path = &$load_gui_values -Load_dir $Load_dir
     #write-host "Global Preset Values from main form: $global:Preset_values"
+
+    # Uncomment to get logs
+    #clear-Host 
 }
 
 # Form Refresh Event
