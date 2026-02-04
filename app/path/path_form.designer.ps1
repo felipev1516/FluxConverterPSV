@@ -8,6 +8,15 @@ $path_form = New-Object -TypeName System.Windows.Forms.Form
 [System.Windows.Forms.TextBox]$status_tbx = $null
 [System.Windows.Forms.Label]$status_desc = $null
 [System.Windows.Forms.Button]$folder_button = $null
+[System.Windows.Forms.Panel]$server_panel = $null
+[System.Windows.Forms.Panel]$support_panel = $null
+[System.Windows.Forms.Label]$support_prompt2 = $null
+[System.Windows.Forms.Label]$support_prompt = $null
+[System.Windows.Forms.Button]$support_button = $null
+[System.Windows.Forms.Panel]$ignore_panel = $null
+[System.Windows.Forms.Label]$ignore_prompt2 = $null
+[System.Windows.Forms.Label]$ignore_prompt1 = $null
+[System.Windows.Forms.Button]$ignore_button = $null
 function InitializeComponent
 {
 $resources = . (Join-Path $PSScriptRoot 'path_form.resources.ps1')
@@ -20,11 +29,23 @@ $status_label = (New-Object -TypeName System.Windows.Forms.Label)
 $status_tbx = (New-Object -TypeName System.Windows.Forms.TextBox)
 $status_desc = (New-Object -TypeName System.Windows.Forms.Label)
 $folder_button = (New-Object -TypeName System.Windows.Forms.Button)
+$server_panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$support_panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$support_prompt2 = (New-Object -TypeName System.Windows.Forms.Label)
+$support_prompt = (New-Object -TypeName System.Windows.Forms.Label)
+$support_button = (New-Object -TypeName System.Windows.Forms.Button)
+$ignore_panel = (New-Object -TypeName System.Windows.Forms.Panel)
+$ignore_prompt2 = (New-Object -TypeName System.Windows.Forms.Label)
+$ignore_prompt1 = (New-Object -TypeName System.Windows.Forms.Label)
+$ignore_button = (New-Object -TypeName System.Windows.Forms.Button)
+$server_panel.SuspendLayout()
+$support_panel.SuspendLayout()
+$ignore_panel.SuspendLayout()
 $path_form.SuspendLayout()
 #
 #path_tbx
 #
-$path_tbx.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]115,[System.Int32]143))
+$path_tbx.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]115,[System.Int32]146))
 $path_tbx.Name = [System.String]'path_tbx'
 $path_tbx.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]351,[System.Int32]21))
 $path_tbx.TabIndex = [System.Int32]0
@@ -33,7 +54,7 @@ $path_tbx.add_TextChanged($path_tbx_TextChanged)
 #path_label
 #
 $path_label.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]15.75,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
-$path_label.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]43,[System.Int32]133))
+$path_label.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]43,[System.Int32]136))
 $path_label.Name = [System.String]'path_label'
 $path_label.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]68,[System.Int32]34))
 $path_label.TabIndex = [System.Int32]1
@@ -44,7 +65,7 @@ $path_label.add_Click($Label1_Click)
 #path_prompt1
 #
 $path_prompt1.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]21.75,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
-$path_prompt1.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]55,[System.Int32]32))
+$path_prompt1.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]3,[System.Int32]21))
 $path_prompt1.Name = [System.String]'path_prompt1'
 $path_prompt1.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]428,[System.Int32]40))
 $path_prompt1.TabIndex = [System.Int32]2
@@ -66,7 +87,7 @@ $path_button.add_Click($path_button_Click)
 #path_prompt_2
 #
 $path_prompt_2.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]12,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
-$path_prompt_2.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]110,[System.Int32]83))
+$path_prompt_2.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]71,[System.Int32]77))
 $path_prompt_2.Name = [System.String]'path_prompt_2'
 $path_prompt_2.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]307,[System.Int32]42))
 $path_prompt_2.TabIndex = [System.Int32]4
@@ -108,23 +129,116 @@ $status_desc.add_Click($status_desc_Click)
 #folder_button
 #
 $folder_button.Image = ([System.Drawing.Image]$resources.'folder_button.Image')
-$folder_button.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]472,[System.Int32]137))
+$folder_button.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]472,[System.Int32]140))
 $folder_button.Name = [System.String]'folder_button'
 $folder_button.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]30,[System.Int32]30))
 $folder_button.TabIndex = [System.Int32]8
 $folder_button.UseVisualStyleBackColor = $true
 $folder_button.add_Click($folder_button_Click)
 #
+#server_panel
+#
+$server_panel.Controls.Add($path_prompt1)
+$server_panel.Controls.Add($path_prompt_2)
+$server_panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]57,[System.Int32]5))
+$server_panel.Name = [System.String]'server_panel'
+$server_panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]445,[System.Int32]132))
+$server_panel.TabIndex = [System.Int32]9
+#
+#support_panel
+#
+$support_panel.Controls.Add($support_prompt2)
+$support_panel.Controls.Add($support_prompt)
+$support_panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]57,[System.Int32]5))
+$support_panel.Name = [System.String]'support_panel'
+$support_panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]445,[System.Int32]132))
+$support_panel.TabIndex = [System.Int32]10
+#
+#support_prompt2
+#
+$support_prompt2.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]12,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$support_prompt2.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]3,[System.Int32]77))
+$support_prompt2.Name = [System.String]'support_prompt2'
+$support_prompt2.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]439,[System.Int32]54))
+$support_prompt2.TabIndex = [System.Int32]1
+$support_prompt2.Text = [System.String]'You need to specify the types of files that are upgradable (Required)'
+$support_prompt2.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$support_prompt2.add_Click($support_prompt2_Click)
+#
+#support_prompt
+#
+$support_prompt.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]18,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$support_prompt.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]18,[System.Int32]21))
+$support_prompt.Name = [System.String]'support_prompt'
+$support_prompt.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]412,[System.Int32]56))
+$support_prompt.TabIndex = [System.Int32]0
+$support_prompt.Text = [System.String]'Supported File Types Undefined'
+$support_prompt.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+#
+#support_button
+#
+$support_button.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]11.25,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$support_button.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]203,[System.Int32]260))
+$support_button.Name = [System.String]'support_button'
+$support_button.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]126,[System.Int32]51))
+$support_button.TabIndex = [System.Int32]11
+$support_button.Text = [System.String]'Okay'
+$support_button.UseVisualStyleBackColor = $true
+#
+#ignore_panel
+#
+$ignore_panel.Controls.Add($ignore_prompt2)
+$ignore_panel.Controls.Add($ignore_prompt1)
+$ignore_panel.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]57,[System.Int32]5))
+$ignore_panel.Name = [System.String]'ignore_panel'
+$ignore_panel.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]445,[System.Int32]132))
+$ignore_panel.TabIndex = [System.Int32]12
+#
+#ignore_prompt2
+#
+$ignore_prompt2.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]11.25,[System.Drawing.FontStyle]::Regular,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$ignore_prompt2.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]18,[System.Int32]82))
+$ignore_prompt2.Name = [System.String]'ignore_prompt2'
+$ignore_prompt2.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]412,[System.Int32]46))
+$ignore_prompt2.TabIndex = [System.Int32]1
+$ignore_prompt2.Text = [System.String]'Please specify the files types that will be ignored during update (Optional)'
+$ignore_prompt2.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$ignore_prompt2.add_Click($ignore_prompt2_Click)
+#
+#ignore_prompt1
+#
+$ignore_prompt1.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]18,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$ignore_prompt1.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]18,[System.Int32]10))
+$ignore_prompt1.Name = [System.String]'ignore_prompt1'
+$ignore_prompt1.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]406,[System.Int32]79))
+$ignore_prompt1.TabIndex = [System.Int32]0
+$ignore_prompt1.Text = [System.String]'Non-Upgradable File Path Not Set'
+$ignore_prompt1.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+#
+#ignore_button
+#
+$ignore_button.Font = (New-Object -TypeName System.Drawing.Font -ArgumentList @([System.String]'Segoe UI',[System.Single]11.25,[System.Drawing.FontStyle]::Bold,[System.Drawing.GraphicsUnit]::Point,([System.Byte][System.Byte]0)))
+$ignore_button.Location = (New-Object -TypeName System.Drawing.Point -ArgumentList @([System.Int32]203,[System.Int32]260))
+$ignore_button.Name = [System.String]'ignore_button'
+$ignore_button.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]126,[System.Int32]51))
+$ignore_button.TabIndex = [System.Int32]13
+$ignore_button.Text = [System.String]'Okay'
+$ignore_button.UseVisualStyleBackColor = $true
+$ignore_button.add_Click($ignore_button_Click)
+#
 #path_form
 #
-$path_form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]535,[System.Int32]330))
+$path_form.ClientSize = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]550,[System.Int32]323))
+$path_form.Controls.Add($ignore_button)
+$path_form.Controls.Add($ignore_panel)
+$path_form.Controls.Add($support_button)
+$path_form.Controls.Add($support_panel)
+$path_form.Controls.Add($server_panel)
 $path_form.Controls.Add($folder_button)
 $path_form.Controls.Add($status_desc)
 $path_form.Controls.Add($status_tbx)
 $path_form.Controls.Add($status_label)
-$path_form.Controls.Add($path_prompt_2)
 $path_form.Controls.Add($path_button)
-$path_form.Controls.Add($path_prompt1)
 $path_form.Controls.Add($path_label)
 $path_form.Controls.Add($path_tbx)
 $path_form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
@@ -133,6 +247,10 @@ $path_form.MaximizeBox = $false
 $path_form.Text = [System.String]'Insert Path'
 $path_form.add_Closing($path_form_Closing)
 $path_form.add_Load($path_form_Load)
+$path_form.add_Shown($path_form_shown)
+$server_panel.ResumeLayout($false)
+$support_panel.ResumeLayout($false)
+$ignore_panel.ResumeLayout($false)
 $path_form.ResumeLayout($false)
 $path_form.PerformLayout()
 Add-Member -InputObject $path_form -Name path_tbx -Value $path_tbx -MemberType NoteProperty
@@ -144,5 +262,15 @@ Add-Member -InputObject $path_form -Name status_label -Value $status_label -Memb
 Add-Member -InputObject $path_form -Name status_tbx -Value $status_tbx -MemberType NoteProperty
 Add-Member -InputObject $path_form -Name status_desc -Value $status_desc -MemberType NoteProperty
 Add-Member -InputObject $path_form -Name folder_button -Value $folder_button -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name server_panel -Value $server_panel -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name support_panel -Value $support_panel -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name support_prompt2 -Value $support_prompt2 -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name support_prompt -Value $support_prompt -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name support_button -Value $support_button -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name ignore_panel -Value $ignore_panel -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name ignore_prompt2 -Value $ignore_prompt2 -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name ignore_prompt1 -Value $ignore_prompt1 -MemberType NoteProperty
+Add-Member -InputObject $path_form -Name ignore_button -Value $ignore_button -MemberType NoteProperty
+
 }
 . InitializeComponent

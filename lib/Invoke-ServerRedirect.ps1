@@ -9,10 +9,10 @@ function Invoke-ServerRedirect{
     
     # Test if Server Directory is reachable
     if($server_dir -eq ""){
-        return "-1"
+        return "0x1" # Error Code 0x1: No value in server_path file
     }else{
         if(!(Test-Path $server_dir)){
-            return "-2"
+            return "0x2" # Error Code 0x2: Server Unreachable
         }
     }
     
@@ -21,7 +21,12 @@ function Invoke-ServerRedirect{
         
         #Server Directory is now starting at the root folder
         $server_dir = [system.string]::Concat($server_dir,"\",$server_folder_name)
-        $server_dir = convert-path $server_dir
+        $server_dir = [string] $(convert-path $server_dir)
+    }
+    
+    # Check if Folder in Server Directory has items
+    if((Get-ChildItem $server_dir).length -eq 0){
+        return "0x3" # Error Code 0x3: Server directory is empty
     }
     
     return $server_dir

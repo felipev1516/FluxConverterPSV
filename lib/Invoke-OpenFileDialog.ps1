@@ -1,16 +1,16 @@
 function Invoke-OpenFileDialog {
     param([string]$initialDirectory, [bool]$multiSelect=$false)
-    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
-
+    if($initialDirectory -eq "" -or -not(Test-Path $initialDirectory)){
+        $initialDirectory = "$PSScriptroot\..\"
+    }
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog -Property @{
         Title = "Select File to Open"
-        #RestoreDirectory = $true
+        RestoreDirectory = $true
         initialDirectory = $initialDirectory
         filter = "All files (*.*)| *.*"
     }
     if($multiSelect) {
         $OpenFileDialog.Multiselect = $true
     }
-    $OpenFileDialog.ShowDialog() |  Out-Null
     return $OpenFileDialog
 }

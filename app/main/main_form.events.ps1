@@ -41,21 +41,27 @@ $profile_path = "$(Get-RootDirectory)\profiles"
 $tmi_load_event = {
     [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $False)
     
-    # load_gui_values function called here
-    if(Test-Path $Load_dir.FileName){
-        $global:full_last_file_path = ($Load_dir.FileName)
-        &$load_gui_values -Load_dir $Load_dir.FileName
+    if($Load_dir.ShowDialog() -eq "OK"){
+        # load_gui_values function called here
+        if(Test-Path $Load_dir.FileName){
+            $global:full_last_file_path = ($Load_dir.FileName)
+            &$load_gui_values -Load_dir $Load_dir.FileName
+        }
     }
+    $Load_dir.Dispose()
 }
 
 $tmi_open_event = {
     [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $True)
-    if(Test-Path $Load_dir.filenames[0]){
-        foreach($file in $Load_dir.filenames){
-            &$add_to_dropbox -files $file
+    
+    if($Load_dir.ShowDialog() -eq "OK"){
+        if(Test-Path $Load_dir.filenames[0]){
+            foreach($file in $Load_dir.filenames){
+                &$add_to_dropbox -files $file
+            }
         }
+        &$check_if_change
     }
-    &$check_if_change
     $Load_dir.Dispose()
 }
 
@@ -399,14 +405,16 @@ $add_drop_button_click = {
     
     $Load_dir = Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $True
     
-    if ($load_dir.filenames.count -gt 0) {
-        $global:last_path = (Split-Path $Load_dir.filenames[0] -parent)
-    }
+    if($Load_dir.ShowDialog() -eq "OK"){
+        if ($load_dir.filenames.count -gt 0) {
+            $global:last_path = (Split-Path $Load_dir.filenames[0] -parent)
+        }
 
-    if(!($Load_dir.filenames[0] -eq "")){
-        foreach($file in $Load_dir.filenames)
-        {
-            &$add_to_dropbox -files $file
+        if(!($Load_dir.filenames[0] -eq "")){
+            foreach($file in $Load_dir.filenames)
+            {
+                &$add_to_dropbox -files $file
+            }
         }
     }
     &$check_if_change

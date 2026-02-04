@@ -9,4 +9,4 @@ Unblock-File "$PSScriptRoot\main_form.events.ps1"
 # Call the designer
 . "$PSScriptRoot\main_form.designer.ps1"
 # Run the form
-[void]$main_form.ShowDialog() | Out-Null
+$main_form.ShowDialog() | Out-Null

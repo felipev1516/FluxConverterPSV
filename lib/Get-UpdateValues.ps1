@@ -3,6 +3,7 @@
 . "$PSScriptroot\Get-UpdateTypes"
 . "$PSScriptroot\Get-UpdateCommands"
 . "$PSScriptroot\Get-UpdateRegex"
+. "$PSScriptroot\Get-RootDirectory.ps1"
 function Get-UpdateValues{
     param(
     [string]$server_dir=$args[0],
@@ -14,39 +15,31 @@ function Get-UpdateValues{
     )
     [string[]]$items_to_update = @()
     
-    # Authenticate Server Directory
-    $server_dir = $(Invoke-ServerRedirect $server_dir $server_folder_name)
-    if($server_dir -eq "-1" -or $server_dir -eq "-2"){
-        return "0x1" # Error Code 0x1: Server Unreachable
-    }
-    
-    # Get Server Items
-    [string[]]$server_items = $(Get-ChildItem $server_dir -Recurse).FullName
-    if($server_items.Length -eq 0){
-        return "0x2" # Error Code 0x2: Server directory does not have items
-    }
-    
     # Get Client Directory Items
     [string[]] $client_items = $(Get-ClientItems $client_dir)
+    [string] $client_root = $(Get-RootDirectory)
+    
     if($client_items.Length -eq 0){
-        return "0x3" # Error Code 0x3: Client directory does not have items
+        return "0x4" # Error Code 0x4: Client directory does not have items
     }else{
-        $client_dir = $(Split-Path $client_dir -parent)
+        [string[]]$client_items_leaf = $client_items | Foreach-Object{
+            [string] $_.replace("$client_root","")
+        }
     }
 
     # Check if Upgrade Extention Path Exist
     if ($upgrade_ext_path -eq ""){
-        return "0x4" # Error Code 0x4: Supported extention path is blank
+        return "0x5" # Error Code 0x4: Supported extention path is blank
     }else{
-        [string] $upgrade_ext = $(Get-UpdateTypes $upgrade_ext_path)
+        [string[]] $upgrade_ext = $(Get-UpdateTypes $upgrade_ext_path)
         if ($upgrade_ext -eq "-1"){
-            return "0x5" # Error Code 0x4: Supported extention path is unreachable
+            return "0x6" # Error Code 0x4: Supported extention path is unreachable
         }
     }
 
     # Get Commands
     if($commands -eq ""){
-        $commands = (Get-UpdateCommands $upgrade_ext_path)
+        [string[]]$commands = (Get-UpdateCommands $upgrade_ext_path)
         if($commands -eq "-1"){
            $commands = "" 
         }
@@ -54,39 +47,54 @@ function Get-UpdateValues{
 
     # Get Regular Expressions Patterns
     if($regex_pattern -eq ""){
-        $regex_pattern = (Get-UpdateRegex $upgrade_ext_path)
+        [string[]]$regex_pattern = (Get-UpdateRegex $upgrade_ext_path)
         if($regex_pattern -eq "-1"){
            $regex_pattern = "" 
         }
     }
-
-    [string[]]$client_items_leaf = $client_items.Replace($(Get-RootDirectory),"")
-    [string[]]$server_items_leaf = $server_items.Replace($server_dir,"")
     
-    # Leaf files that are available in Server and Client
-    [string[]]$client_items_leaf = $client_items_leaf.where{$_ -in $server_items_leaf}
+    [string[]] $server_items = (Get-ChildItem "$server_dir\*" -recurse).FullName
+    [string[]] $server_items_leaf = $server_items | Foreach-Object{
+            [string] $_.replace("$server_dir","")
+    }
 
-    foreach($item in $client_items_leaf){
-        foreach($ext in $upgrade_ext){
-            if($item -like "*$ext" ){
-                if($ext -like "*.exe"){
-                    $client_version = $(((."$client_dir\$item" $commands | Select-String -pattern $regex_pattern).matches.value) -split " ")[1]
-                    $server_version = $(((."$client_dir\$item" $commands | Select-String -pattern $regex_pattern).matches.value) -split " ")[1]
-                    if($client_version -ne $server_version){
+    # Remove Files mention in the supported file types
+    [string[]]$union_items_leaf = @()
+
+    foreach($item in $upgrade_ext){
+        $union_items_leaf += $client_items_leaf.where{$_ -like "*$item"}
+    }
+
+    # Only get Leaf files that are available in both Server and Client
+    $union_items_leaf = $union_items_leaf.where{$_ -in $server_items_leaf}
+
+    # In Testing
+    # Iterate through each File Types, Commands, and Regex
+    for([int] $i = 0; $i -lt $upgrade_ext.length; $i++){
+        [string[]] $temp = $union_items_leaf.where{$_ -like "*$($upgrade_ext[$i])"}
+        foreach($item in $temp){
+            [string] $client_file = "$client_root$item"
+            [string] $server_file = "$server_dir$item"
+
+            # In the .exe section
+            if($commands[$i] -ne " " -and $regex_pattern[$i] -ne " "){
+                [string] $argument = $commands[$i].trim(" ")
+                [string] $client_version = $(((. "$client_file" $argument| Select-String -pattern "$regex_pattern[$i]").matches.value) -split " ")[1]
+                [string] $server_version = $(((. "$server_file" $argument | Select-String -pattern "$regex_pattern[$i]").matches.value) -split " ")[1]
+                if($client_version -ne $server_version){
+                    $items_to_update += $item
+                }
+            }else{
+                if($(Get-Content $client_file).length -ne 0 -and $(Get-Content $server_file).length -ne 0){
+                    if((Compare-Object (Get-Content $client_file) (Get-Content $server_file) -IncludeEqual).SideIndicator.contains("<=")`
+                    -or (Compare-Object (Get-Content $client_file) (Get-Content $server_file) -IncludeEqual).SideIndicator.contains("=>")){
                         $items_to_update += $item
-                    }
-                }else{
-                    if($(Get-Content "$client_dir\$item").length -ne 0 -and $(Get-Content "$server_dir\$item").length -ne 0){
-                        if((Compare-Object (Get-Content "$client_dir\$item") (Get-Content "$server_dir\$item") -IncludeEqual).SideIndicator.contains("<=")`
-                        -or (Compare-Object (Get-Content "$client_dir\$item") (Get-Content "$server_dir\$item") -IncludeEqual).SideIndicator.contains("=>")){
-                            $items_to_update += $item
-                        }
                     }
                 }
             }
         }
     }
-
+    
     # This will return from root to leaf
-    return $item_to_update
+    return $items_to_update
 }

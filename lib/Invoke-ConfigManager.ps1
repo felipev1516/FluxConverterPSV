@@ -101,7 +101,12 @@ function Invoke-ConfigManager {
         ni "$config_dir\supported_update_types.cfg" -type File
         [string[]] $type = @(
             ".ps1 command= regex=",
-            "ffmpeg.exe command=-version regrex=version (\d\.\d\.\d)"
+            "ffmpeg.exe command=-version regrex=version (\d\.\d\.\d)",
+            ".bat command= regex=",
+            ".txt command= regex=",
+            ".md command= regex=",
+            ".cfg command= regex=", 
+            ".log command= regex="
         )
         $type | %{$_ >> "$config_dir\supported_update_types.cfg"}
     }

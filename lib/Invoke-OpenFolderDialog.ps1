@@ -1,6 +1,10 @@
 function Invoke-OpenFolderDialog{
+    param($InitialDirectory=$args[0])
+    if($InitialDirectory -eq ""){
+        $InitialDirectory = "$home\Downloads"
+    }
     $folder_destination = New-Object System.Windows.Forms.OpenFileDialog -Property @{
-        InitialDirectory = "$home\Downloads"
+        InitialDirectory = $InitialDirectory
         RestoreDirectory = $True
         Multiselect = $False
         CheckFileExists = 0
