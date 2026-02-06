@@ -17,23 +17,23 @@ $Restart_form = New-Object System.Windows.Forms.Form -Property @{
 #Restart Prompt Label
 $Restart_Label = New-Object System.Windows.Forms.Label -Property @{
     Text      = "Placeholder"
-    Location  = New-Object System.Drawing.Point(50,20)
+    Location  = New-Object System.Drawing.Point(25,10)
     AutoSize  = $False
-    Font      = "Microsoft Aldhabi, 16, style=Bold"
+    Font      = "Segoe UI, 16, style=Bold"
     TextAlign = "MiddleCenter"
-    Size      = "270,35"
+    Size      = "300,30"
 }
 $Status_Label = New-Object System.Windows.Forms.Label -Property @{
     Text      = "Placeholder"
-    Font      = "Microsoft Aldhabi, 11"
+    Font      = "Segoe UI, 11.25"
     TextAlign = "MiddleCenter"
-    Size      = "170,30"
-    Location  = "95,60"
+    Size      = "185,45"
+    Location  = "85,45"
 }
 $Close_Button = New-Object System.Windows.Forms.Button -Property @{
     Text     = "Okay"
     Size     = New-Object System.Drawing.Size(120,40)
-    Font     = "Microsoft Aldhabi, 8, style=Bold"
+    Font     = "Segoe UI, 11, style=Bold"
     Location = New-Object System.Drawing.Point(115,100)
     Visible  = $True
 } 
@@ -41,6 +41,8 @@ $Close_Button = New-Object System.Windows.Forms.Button -Property @{
 # it could not call the close_button_click event from the designer file.
 
 # Restart GUI
+$Restart_form.AcceptButton = $Close_Button
+$Close_Button.Add_Click($Close_Button_click)
 $Restart_form.Controls.Add($Close_Button)
 $Restart_form.Controls.Add($Restart_Label)
 $Restart_form.Controls.Add($Status_Label)

@@ -110,14 +110,15 @@ function Invoke-ConfigManager {
         )
         $type | %{$_ >> "$config_dir\supported_update_types.cfg"}
     }
-    if(!(Test-Path "$config_dir\ignore_directories.cfg")){
-        ni "$config_dir\ignore_directories.cfg" -type File
+    if(!(Test-Path "$config_dir\ignore_types.cfg")){
+        ni "$config_dir\ignore_types.cfg" -type File
         [string[]] $type = @(
             "profiles\",
             "saved_files\",
             "output\"
+            "lib\pid.txt"
         )
-        $type | %{$_ >> "$config_dir\ignore_directories.cfg"}
+        $type | %{$_ >> "$config_dir\ignore_types.cfg"}
     }
     if(!(Test-Path "$config_dir\server_path.cfg")){
         ni "$config_dir\server_path.cfg" -type File

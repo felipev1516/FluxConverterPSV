@@ -554,6 +554,8 @@ $remove_from_list = {
 
 # Flux Button Click Event
 $flux_button_click = {
+
+    # Get Future Items: New Title, New Extention, Destination, FFMPEG Parameters 
     [string] $temp_ext = ""
 	[boolean] $result
 	[string[]] $buffer = &$coe_validator
@@ -1044,6 +1046,7 @@ $save_gui_values = {
 
 
 # Validate selected extensions for fluxing
+# Redo this
 $coe_validator = {
 	if(!$video_tmi_mp4.Checked){
 		if(!$video_tmi_mov.Checked){

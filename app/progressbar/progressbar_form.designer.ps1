@@ -70,6 +70,7 @@ $progress_form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSi
 $progress_form.Icon = ([System.Drawing.Icon]$resources.'$this.Icon')
 $progress_form.MaximizeBox = $false
 $progress_form.Text = [System.String]'Updating....'
+$progress_form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
 $progress_form.add_Shown($progress_form_Shown)
 $progress_form.add_FormClosing($progress_form_FormClosing)
 $main_panel.ResumeLayout($false)

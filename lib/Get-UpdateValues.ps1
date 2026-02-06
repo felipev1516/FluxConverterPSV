@@ -8,10 +8,10 @@ function Get-UpdateValues{
     param(
     [string]$server_dir=$args[0],
     [string]$client_dir=$args[1],
-    [string[]]$upgrade_ext_path=$args[2],
+    [string]$upgrade_ext_path=$args[2],
     [string]$commands=$args[3],
     [string]$regex_pattern=$args[4],
-    [string]$server_folder_name=$args[5]
+    [string[]]$ignore_types=$args[5]
     )
     [string[]]$items_to_update = @()
     
@@ -27,15 +27,7 @@ function Get-UpdateValues{
         }
     }
 
-    # Check if Upgrade Extention Path Exist
-    if ($upgrade_ext_path -eq ""){
-        return "0x5" # Error Code 0x4: Supported extention path is blank
-    }else{
-        [string[]] $upgrade_ext = $(Get-UpdateTypes $upgrade_ext_path)
-        if ($upgrade_ext -eq "-1"){
-            return "0x6" # Error Code 0x4: Supported extention path is unreachable
-        }
-    }
+    [string[]] $upgrade_ext = $(Get-UpdateTypes $upgrade_ext_path)
 
     # Get Commands
     if($commands -eq ""){
@@ -67,6 +59,11 @@ function Get-UpdateValues{
 
     # Only get Leaf files that are available in both Server and Client
     $union_items_leaf = $union_items_leaf.where{$_ -in $server_items_leaf}
+
+    # Remove ignore extentions or folders
+    foreach($types in $ignore_types){
+       $union_items_leaf = $union_items_leaf.where{$_ -notlike "*$types*"}
+    }
 
     # In Testing
     # Iterate through each File Types, Commands, and Regex

@@ -1,5 +1,8 @@
 $path_button_Click = {
-    Remove-Item "$(Get-RootDirectory)\config\server_path.cfg"
+    if(Test-Path "$(Get-RootDirectory)\config\server_path.cfg"){
+        Remove-Item "$(Get-RootDirectory)\config\server_path.cfg"
+        New-Item "$(Get-RootDirectory)\config\server_path.cfg" -type file
+    }
     "server_path=$($path_tbx.Text)" >> "$(Get-RootDirectory)\config\server_path.cfg"
     $path_form.Close()
 }
@@ -10,8 +13,8 @@ $support_button_Click = {
     $path_form.Close()
 }
 $ignore_button_Click = {
-    if((Get-Content "$(Get-RootDirectory)\config\ignore_directories.cfg").length -eq 0){
-        explorer "$(Get-RootDirectory)\config\ignore_directories.cfg"
+    if((Get-Content $path_tbx.Text).length -eq 0){
+        explorer $path_tbx.Text
     }
     $path_form.Close()
 }
@@ -35,13 +38,22 @@ $folder_button_Click = {
     
 }
 $path_form_Load = { 
-    #write-host $server_panel.Visible
-    #write-host $support_panel.Visible
-    #write-host $ignore_panel.Visible
-
-    if($server_panel.Visible){$path_tbx.Text = $(Get-ServerPath)}
-    if($support_panel.Visible){$path_tbx.Text = $(Get-ChildItem "$(Get-RootDirectory)\config\supported_update_types.cfg").fullname}
-    if($ignore_panel.Visible){$path_tbx.Text = $(Get-ChildItem "$(Get-RootDirectory)\config\ignore_directories.cfg").fullname}
+    
+    if($server_panel.Visible){
+        if(Test-Path Get-ServerPath){
+            $path_tbx.Text = $(Get-ServerPath)
+        }
+    }
+    if($support_panel.Visible){
+        if(Test-Path "$(Get-RootDirectory)\config\supported_update_types.cfg"){
+            $path_tbx.Text = $(Get-ChildItem "$(Get-RootDirectory)\config\supported_update_types.cfg").fullname
+        }
+    }
+    if($ignore_panel.Visible){
+        if("$(Get-RootDirectory)\config\ignore_types.cfg"){
+            $path_tbx.Text = $(Get-ChildItem "$(Get-RootDirectory)\config\ignore_types.cfg").fullname
+        }
+    }
     $path_tbx.SelectionStart = $path_tbx.Text.Length
     &$check_path_input    
 }

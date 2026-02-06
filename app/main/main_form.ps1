@@ -10,3 +10,5 @@ Unblock-File "$PSScriptRoot\main_form.events.ps1"
 . "$PSScriptRoot\main_form.designer.ps1"
 # Run the form
 $main_form.ShowDialog() | Out-Null
+
+#Update Me

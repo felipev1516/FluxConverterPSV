@@ -1,8 +1,5 @@
-. "$PSScriptRoot\restart_form.designer.ps1"
-. "$PSScriptRoot\..\main\main_form.designer.ps1"
-. "$PSScriptRoot\..\attention\attention_form.designer.ps1"
-
 $Close_Button_click = {
+    $Restart_form.DialogResult = [System.Windows.Forms.DialogResult]::OK
     if($Restart_form.visible -eq $True){
         $Restart_form.Close()
     }
@@ -13,7 +10,6 @@ $Close_Button_click = {
         $main_form.Close()
     }
 }
-$Close_Button.Add_Click($Close_Button_click)
 
 $error_restart_prompt = {
     
@@ -26,3 +22,4 @@ $restart_application_prompt = {
     $Restart_Label.text = "Update Successful!"
     $Status_Label.text = "Please restart the Flux Converter"
 }
+. (Join-Path $PSScriptRoot "restart_form.designer.ps1")

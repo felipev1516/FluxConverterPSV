@@ -298,7 +298,7 @@ $server_prompt_lbl1.Name = [System.String]'server_prompt_lbl1'
 $server_prompt_lbl1.Size = (New-Object -TypeName System.Drawing.Size -ArgumentList @([System.Int32]434,[System.Int32]71))
 $server_prompt_lbl1.TabIndex = [System.Int32]0
 $server_prompt_lbl1.Tag = [System.String]'server'
-$server_prompt_lbl1.Text = [System.String]'Server Directory Unreachable'
+$server_prompt_lbl1.Text = [System.String]'Server directory unreachable or unavailable'
 $server_prompt_lbl1.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 #
 #support_prompt_panel
@@ -376,6 +376,7 @@ $prompt_form.Controls.Add($server_button_panel)
 $prompt_form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
 $prompt_form.Icon = ([System.Drawing.Icon]$resources.'$this.Icon')
 $prompt_form.MaximizeBox = $false
+$prompt_form.StartPosition = "CenterScreen"
 $prompt_form.Text = [System.String]'Folder Error'
 $prompt_form.add_Load($prompt_form_Load)
 $server_button_panel.ResumeLayout($false)

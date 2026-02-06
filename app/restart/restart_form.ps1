@@ -10,4 +10,4 @@ switch ($prompt_type) {
     default { throw "Invalid prompt type specified: $prompt_type" }
 }
 
-$Restart_form.showDialog() | Out-Null
+return $Restart_form.showDialog()

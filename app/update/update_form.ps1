@@ -6,8 +6,12 @@
 
 $p_id = Invoke-WaitPrompt
 
+# Get Client Directory
+[string] $client_dir = $(Get-RootDirectory)
+
 # Get Update items
-[string] $supported_update_types = "$(Get-RootDirectory)\config\supported_update_types.cfg"
+[string] $supported_update_types_path = "$(Get-RootDirectory)\config\supported_update_types.cfg"
+[string] $supported_ignore_types_path = "$(Get-RootDirectory)\config\ignore_types.cfg"
 [string] $folder_name = $(Get-Content "$(Get-RootDirectory)\config\folder_name.cfg")
 
 
@@ -15,45 +19,70 @@ $p_id = Invoke-WaitPrompt
 # Validate the specified Server Directory
 [string] $server_dir = $(Invoke-ServerRedirect $(Get-ServerPath) $folder_name)
 
+
 # If return a server directory unreachanle error or host offline  0x1
 if($server_dir -in @("0x1","0x2")){
+    Stop-Process -ID $p_id.id
     . "$PSScriptroot\..\prompt\prompt_form.ps1" "server"
     return
 }
 
 # If returned a server folder unavailable error 0x2
 if($server_dir -in @("0x3")){
+    Stop-Process -ID $p_id.id
     . "$PSScriptroot\..\prompt\prompt_form.ps1" "missing"
     return
 }
 
-#In Testing
+# Get Ignore Types 
+[string[]] $ignore_types = $(Get-Content $supported_ignore_types_path)
 
-[string[]] $items_to_update = $(Get-UpdateValues -server_dir $server_dir -client_dir $(Get-RootDirectory) -upgrade_ext_path $supported_update_types)
-Stop-Process -ID $p_id.id
+if($ignore_types.length -lt 1){
+    Stop-Process -ID $p_id.id
+    . "$PSScriptroot\..\prompt\prompt_form.ps1" "ignore"
+    return
+}
+
+# Check if Upgrade Extention Path Exist
+if (Test-Path $supported_update_types_path){
+    if((Get-Content $supported_update_types_path).length -eq 0){
+        Remove-Item  $supported_update_types_path
+        Invoke-ConfigManager
+        return
+    }
+}else{
+    . "$PSScriptroot\..\prompt\prompt_form.ps1" "support"
+    Stop-Process -ID $p_id.id
+    return
+}
+
+[string[]] $items_to_update = $(Get-UpdateValues -server_dir $server_dir -client_dir $client_dir -upgrade_ext_path $supported_update_types_path -ignore_types $ignore_types)
+
 # If returned client directory error 0x3
 if($server_dir -in @("0x4")){
     #. "$PSScriptroot\..\prompt\prompt_form.ps1" "repair" # Will Not Do
     return
 }
 
-# If returned a update extention error 0x4 or 0x5
-if($items_to_update.length -gt 0 -and $items_to_update[0] -in @("0x5","0x6")){
-    . "$PSScriptroot\..\prompt\prompt_form.ps1" "support"
-    return
-}
-
-# Get Deleted items
-[string] $ignore_directories = "$(Get-RootDirectory)\config\ignore_directories.cfg"
-[string[]] $items_to_delete = $(Get-DeletedValues -server_dir $server_dir -client_dir $(Get-RootDirectory) -ignore_path $ignore_directories -server_folder_name "FluxConverterPSV")
+[string[]] $items_to_delete = $(Get-DeletedValues -server_dir $server_dir -client_dir $client_dir -ignore_types $ignore_types)
 
 # Get Added items
-[string[]] $items_to_add = $(Get-AddedValues -server_dir $server_dir -client_dir $(Get-RootDirectory))
+[string[]] $items_to_add = $(Get-AddedValues -server_dir $server_dir -client_dir $client_dir)
+
 
 . "$PSScriptroot\update_form.events.ps1"
 
 # If Values exist call update form with Update Message
+if($items_to_add.Length -gt 0 -or $items_to_update.length -gt 0 -or $items_to_delete.Length -gt 0){
+    &$update_available_prompt
+}else{
+    # If not call update form with no update message
+    &$no_update_prompt
+}
 
-# If not call update form with no update message
+Stop-Process -ID $p_id.id
+
 
 $update_form.ShowDialog()
+
+# 
