@@ -1,4 +1,4 @@
-. "$PSScriptRoot\main_form.designer.ps1"
+
 
 # Configuration Path
 $config_path = "$(Get-RootDirectory)\config"
@@ -7,9 +7,10 @@ $config_path = "$(Get-RootDirectory)\config"
 $profile_path = "$(Get-RootDirectory)\profiles"
 
 # Supported Extensions Arrays
-[string[]] $supported_ext = $(cat "$config_path\supported_pic_ext.cfg" | %{"*.$_"}) + `
-                            $(cat "$config_path\supported_video_ext.cfg" | %{"*.$_"}) + `
-                            $(cat "$config_path\supported_txt_ext.cfg" | %{"*.$_"})
+[string[]] $supported_video_ext = $(Get-content "$config_path\supported_video_ext.cfg" | %{"*.$_"})
+[string[]] $supported_pic_ext = $(Get-content "$config_path\supported_pic_ext.cfg" | %{"*.$_"})
+[string[]] $supported_txt_ext = $(Get-content "$config_path\supported_txt_ext.cfg" | %{"*.$_"})
+[string[]] $supported_ext = $($supported_video_ext) + $($supported_pic_ext) + $($supported_txt_ext)
 
 #write-host $supported_ext
 
@@ -19,13 +20,20 @@ $profile_path = "$(Get-RootDirectory)\profiles"
 [string[]] $global:Preset_values = @("","","","","","","")
 [string[]] $global:Regress_values = @("","","","","","","")
 
+[string] $global:new_video_label
+[string] $global:new_picture_label
+[string] $global:new_txt_label
+[string] $global:new_ini_label
+[string] $global:new_log_label
+[string] $global:new_cfg_label
+[string] $global:new_config_label 
 # These variables will hold the selected extensions for each file type during conversion
 [string] $global:vid_select = ""
 [string] $global:pic_select = ""
 [string] $global:text_select = ""
 
 # After using the OpenFileDialog, this variable will hold the last path used
-[string] $global:last_path = $profile_path
+[string] $global:last_path = ""
 [string] $global:last_file = ""
 [string] $global:full_last_file_path = ""
 #write-host "Root Directory: $(Get-RootDirectory)"
@@ -39,7 +47,7 @@ $profile_path = "$(Get-RootDirectory)\profiles"
 # MenuStrip Events on main form
 # Load Text Fields with Config Data
 $tmi_load_event = {
-    [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $global:last_path -multiSelect $False)
+    [System.Windows.Forms.OpenFileDialog] $Load_dir = $(Invoke-OpenFileDialog -initialDirectory $profile_path -multiSelect $False)
     
     if($Load_dir.ShowDialog() -eq "OK"){
         # load_gui_values function called here
@@ -99,6 +107,7 @@ $crf_tmi_jira_click = {
 $crf_tmi_regress_click = {
     . "$PSScriptRoot\..\file_rename\file_rename_form.ps1" "regression"
 }
+
 # Video Format Selection Events
 $MP4 = {
     $video_tmi_mp4.Checked = $True
@@ -235,6 +244,10 @@ $help_option_click = {
 # Panels will be shown/hidden based on the selected renaming rule
 # Show Custom Panel & Hide Jira Panel
 $hide_base_ui = {
+    $format_tmi_jira_regress.Checked = $false
+    $format_tmi_none.Checked = $false
+    $format_tmi_custom.Checked = $True
+    
     $Jira_Panel.Enabled = $False
     $Jira_Panel.Visible = $False
     
@@ -248,6 +261,10 @@ $hide_base_ui = {
 
 # Show Jira Panel & Hide Custom Panel
 $hide_custom_ui = {
+    $format_tmi_none.Checked = $false
+    $format_tmi_custom.Checked = $false
+    $format_tmi_jira_regress.Checked = $True
+    
     $Jira_Panel.Enabled = $True
     $Jira_Panel.Visible = $True
     
@@ -261,6 +278,10 @@ $hide_custom_ui = {
 
 # Hide Both Jira & Custom Panels
 $disable_base_custom_ui = {
+    $format_tmi_custom.Checked = $false
+    $format_tmi_jira_regress.Checked = $false
+    $format_tmi_none.Checked = $True
+    
     $Jira_Panel.Enabled = $False
     $Jira_Panel.Visible = $False
     
@@ -273,7 +294,7 @@ $disable_base_custom_ui = {
     &$quality_list_checker
 }
 
-# Show Video Panel if Quality is set to 'Media'
+# Show Video Panel if Quality is set to 'Custom'
 $quality_list_checker = {
     if($Quality_List.SelectedIndex -eq 6){
         if(!($Custom_Panel.Visible -eq $False -and $Jira_Panel.Visible -eq $False)){
@@ -306,7 +327,7 @@ $quality_list_checker = {
     }
 }
 
-# Calling Update Form Event, Redo this later to make it cleaner
+# Calling Update Form 
 $Check_For_Update = {
     . "$PSScriptroot\..\update\update_form.ps1" 
 }
@@ -326,7 +347,9 @@ $DropBox_KeyDown ={
 
 # Handle DragEnter Event
 $DropBox_DragEnter = [System.Windows.Forms.DragEventHandler]{
-    Get-RootFolderItems -SupportedExtensions $supported_ext | ForEach-Object { &$add_to_dropbox -files $_ }
+    if ($(Get-RootFolderItems $supported_ext).length -gt 0) {
+        Get-RootFolderItems $supported_ext | ForEach-Object { &$add_to_dropbox -files $_ }
+    }  
 }
 
 # Handle DragOver Event
@@ -399,7 +422,10 @@ $clear_dropbox_click = {
 
 # Add Drop Box Button Event
 $add_drop_button_click = {
-    if ($global:last_path -eq ""){
+
+    $global:last_path = (Resolve-Path $global:last_path).Path
+    
+    if ($global:last_path -eq "" -or $global:last_path -eq $config_path){
         $global:last_path = "$env:USERPROFILE\Downloads"
     }
     
@@ -450,6 +476,7 @@ $clear_selections = {
 }
 
 #Checks if all GUI inputs are filled such that the flux button & Rename Button gets enabled
+#Checks if all inputs on every TextBox are valid
 $check_inputs = {
 	if($DropBox.items.count -eq 0 -and (Get-RootFolderItems -SupportedExtensions $supported_ext).count -eq 0){
 		$Rename_Button.Enabled = $False;$Flux_Button.Enabled = $false
@@ -508,8 +535,10 @@ $add_to_dropbox = {
 	$DropBox.BeginUpdate();
 	foreach($case in $supported_ext){
 		if($files -like $case){
-			if($files -notin $global:full_path){ #Prevent Duplicating Drag&Drop Item with Existing file in Root folder
-                $global:full_path += $files
+			if($files -notin $DropBox.Items){ #Prevent Duplicating Drag&Drop Item with Existing file in Root folder
+                if($files -notin $global:full_path){
+                    $global:full_path += $files
+                }
 				$DropBox.Items.Add((Split-Path $files -leaf)) # Adding only leaf name to DropBox
                 $Drop_Prompt.Visible = $False
 			}
@@ -522,30 +551,31 @@ $add_to_dropbox = {
 # Remove Files from DropBox Listbox
 $remove_from_list = {
     param([bool] $delete)
+    [string[]] $root_files = (Get-RootFolderItems -SupportedExtensions $supported_ext)
 	$DropBox.BeginUpdate();
 		if($DropBox.SelectedItems.count -eq $DropBox.Items.count){
-					foreach($item in $global:full_path){
-						#Check Root first
-						if((Get-RootFolderItems -SupportedExtensions $supported_ext).contains($item)){
-                            Invoke-DecideFileOutcome -path $item -delete $delete
-						}
-					}
-					$DropBox.Items.clear()
-				$DropBox.EndUpdate();
+			foreach($item in $global:full_path){
+                #Check Root first
+                if($root_files.length -gt 0 -and $root_files.contains($item)){
+                    Invoke-DecideFileOutcome -path $item -delete $delete
+                } 
+			}
+			$DropBox.Items.clear()
+			$DropBox.EndUpdate();
 			return
 		}
 		else{
 			for($index = ($DropBox.Items.count - 1); $index -ge 0; $index--)
-			{
-				#Check Root first
-				if($($global:full_path[$index] | split-path -leaf) -in $DropBox.SelectedItems){
+			{ 
+                if($($global:full_path[$index] | split-path -leaf) -in $DropBox.SelectedItems){
                     # In-real time values of $global:full_path might change so we need to recheck each time
-					if((Get-RootFolderItems -SupportedExtensions $supported_ext).contains($global:full_path[$index])){
+                    if($root_files.length -gt 0 -and $root_files.contains($global:full_path[$index])){
                         Invoke-DecideFileOutcome -path $global:full_path[$index] -delete $delete
-					}
-					$DropBox.Items.RemoveAt($index)
-					$global:full_path = $global:full_path.where{$_ -ne $global:full_path[$index]}
-				}
+                    }
+                    $DropBox.Items.RemoveAt($index)
+                    $global:full_path = $global:full_path.where{$_ -ne $global:full_path[$index]}
+                }
+                
 			}
 		}
 	$DropBox.EndUpdate();
@@ -553,151 +583,376 @@ $remove_from_list = {
 }
 
 # Flux Button Click Event
-$flux_button_click = {
+# In Development 2/6/2026
+# |-------- Flux Process --------------|
+# Folder Creation Output (Required), saved_files (Required)
+# Pre-Defined Objects are now getting values
+# Label Extraction (Optional)
+# FFMPEG Endcoding (Optional)
+# New Mechanism: Non-Root Directory Items will no longer be deleted if Save a copy option is defined
+$rename_button_click = {
+    if($format_tmi_jira_regress.checked -or $format_tmi_custom.checked){
+        &$flux_process -only_rename $true -get_new_label $true
+    }else{
+        &$flux_process -only_rename $true -get_new_label $false
+    }
+}
 
-    # Get Future Items: New Title, New Extention, Destination, FFMPEG Parameters 
+$flux_button_click = {
+    if($format_tmi_jira_regress.checked -or $format_tmi_custom.checked){
+        &$flux_process -only_rename $false -get_new_label $true
+    }else{
+        &$flux_process -only_rename $false -get_new_label $false
+    }
+}
+
+$flux_process = {
+    param([boolean] $only_rename, [boolean] $get_new_label)
+    
+    # Check if saved_files Folder exist
+    if(!(Test-Path "$(Get-RootDirectory)\saved_files\")){
+        mkdir "$(Get-RootDirectory)\saved_files\"
+    }
+
+    # Check if output Folder exist
+    if(!(Test-Path "$(Get-RootDirectory)\output\")){
+        mkdir "$(Get-RootDirectory)\output\"
+    }
+
+    # Check If Build Text Box is defined sothe output destination is defined
+    if($Build_TextBox.Text -eq "" -or $format_tmi_custom.Checked -or $format_tmi_none.Checked){
+        [string] $output_location = &$define_output_destination
+        if ($output_location -eq "0x1"){
+            # Call Prompt Form
+            return
+        }else{
+            $global:last_path = $output_location
+        }
+    }else{
+        [string] $output_location = "$(Get-RootDirectory)\output\$($Build_TextBox.Text)"
+        if(!(Test-Path $output_location)){
+            mkdir $output_location
+        }
+    }
+    
+    # Get Future Items: New Title, New Extention, FFMPEG Parameters, Save Copy Option
     [string] $temp_ext = ""
 	[boolean] $result
-	[string[]] $buffer = &$coe_validator
-	[int] $file_transferred = $DropBox.Items.Count; [int] $file_index = 0
-	$global:vid_select = $buffer[0];$global:pic_select = $buffer[1];$global:text_select = $buffer[2]
+    [int] $file_counter = 0
+	[int] $file_transferred = $DropBox.Items.Count
+	$global:vid_select = &$coe_validator_video # Future Video extention defined from the menu strip item
+    $global:pic_select = &$coe_validator_picture # Future Picture Extention Defined
+    $global:text_select = &$coe_validator_text # Future Text Extention Defined
+    
+    #Backup Option
+    if($backup_tmi_yes.Checked){
+        [boolean] $create_copy = $True
+    }else{
+        [boolean] $create_copy = $False
+    }
+    
+    # Audio Option
+    if($Check_Box.Checked){
+        [boolean] $audio = $True
+    }else{
+        [boolean] $audio = $False
+    }
 
-	if($global:vid_select -eq ""){
-		$global:vid_select = ".mp4"
-	}
-	if($global:pic_select -eq ""){
-		$global:pic_select = ".jpg"
-	}
-	if($global:text_select -eq ""){
-		$global:text_select = ".txt"
-	}
+    # Encoder Option
+    if($Nvidia_Box.Checked){
+        [boolean] $encoder = $True
+    }else{
+        [boolean] $encoder = $False
+    }
 
-	$Build_TextBox.text = $Build_TextBox.text.trim(" ")
-	if($Build_TextBox.Text -eq "" -or $Build_TextBox.Visible -eq $False)
-	{
-		$global:file_destination = New-Object System.Windows.Forms.OpenFileDialog -Property @{
-			InitialDirectory = "$home\Downloads"
-			CheckFileExists = 0
-			ValidateNames = 0
-			FileName = "Choose Folder"
-		}
-		if( $global:file_destination.ShowDialog() -eq "OK"){
-			$global:file_destination = $global:file_destination.Filename | Split-path -parent 
-			if($global:file_destination -eq "" -or !(Test-Path $global:file_destination)){
-				return
-			}
-		}else{
-			return
-		}
-	}
-	else{
-		$global:file_destination = "$PWD\output\$($Build_TextBox.text)"
-		if(!(Test-Path($global:file_destination))){
-			mkdir $global:file_destination
-		}
-	}
+   
+    # Extract new labels
+    &$extract_new_labels # Global variable gets values
+    
+    # Desired Quality
+    [string] $desired_quality = $Quality_List.Text
+
+    # Video Panel Extraction
+    if($video_panel.Visible){
+        [string] $frame_rate = $fps_cbx.Text
+        [string] $scale = $frame_cbx.Text
+        [string] $bit_rate = $bit_cbx.Text
+        [string] $ratio = $ratio_cbx.Text
+    }else{
+        [string] $frame_rate = ""
+        [string] $scale = ""
+        [string] $bit_rate = ""
+        [string] $ratio = ""
+    }
+
+    # Flip Full Array
+    [system.array]::Reverse($global:full_path)
+    # Rearrange DropBox to respect FIFO
+    $DropBox.Items.Clear()
+	$DropBox.Items.AddRange($($global:full_path | Split-Path -leaf))
 	
-	#Move Items on Drop List into Root folder
-	if($global:array.count -gt 0)
-	{
-		# Temp Fix
-		[string[]] $_temp = @()
-		for($_i = 0; $_i -lt $global:array.count; $_i++){
-			$_temp += $global:array[$_i]
-		}
-		[system.array]::Reverse($_temp)
-		$DropBox.Items.Clear()
-		$DropBox.Items.AddRange($($_temp | Split-Path -leaf))
-		
-		for([int] $index = $($DropBox.Items.Count - 1); $index -ge 0; $index--)
-		{
-			[string] $item = $global:array[$index]
-			$DropBox.BeginUpdate();
-			$temp_ext = [system.string]::Concat("*", (Split-Path-Ext($item)))
-			
-			$ffmpeg_process = {
-				param([string] $in, [string] $out, [string] $extention)
-				[string] $newname = ""
-				#Keep a copy of media with the original title
-				if($in -like "*$PWD*" -and $backup_tmi_yes.Checked){
-					$newname = duplicate_file_prevention $in "$PWD\saved_files\" $(Split-Path-Ext($in))
-					Copy-Item $in -Destination "$PWD\saved_files\$($newname)"
-				}
-				if($Jira_Panel.Visible -eq $True -or $Custom_Panel.Visible -eq $True){
-					$newname = rename_file($in)
-					$newname = duplicate_file_prevention $newname $out $extention
-					
-				}else{
-					$newname = duplicate_file_prevention $in $out $extention
-				}
-				if($just_rename -or $temp_ext -in $supported_txt_ext){
-					$newname = $newname.replace($(Split-Path-Ext($newname)),$extention)
-					if(!$backup_tmi_yes.Checked){
-						Move-Item $in -Destination "$($out)\$($newname)"
-					}else{
-						Copy-Item $in -Destination "$($out)\$($newname)"
-					}
-					$DropBox.Items.RemoveAt($index)
-					$global:array = $global:array.where{$_ -ne $global:array[$index]}
-					if(Test-Path "$($out)\$($newname)"){
-						return $True
-					}else{
-						return $false
-					}
-				}else{
-					if(!$(ffmpeg $in $newname $out $extention)){
-						return $false
-					}else{
-						if(!$backup_tmi_yes.Checked){
-							Remove-Item $in
-							$DropBox.Items.RemoveAt($index)
-							$global:array = $global:array.where{$_ -ne $global:array[$index]}
-						}
-						return $true
-					}
-				}
-					
-			}
-			
-			if($temp_ext -in $supported_video_ext){
-				if($global:vid_select -eq "None"){
-					$global:vid_select = Split-Path-Ext($item)
-				}
-				$result = &$ffmpeg_process -in $item -out $global:file_destination -extention $global:vid_select
-			}elseif($temp_ext -in $supported_pic_ext){
-				if($global:pic_select -eq "None"){
-					$global:pic_select = Split-Path-Ext($item)
-				}
-				$result = &$ffmpeg_process -in $item -out $global:file_destination -extention $global:pic_select				
-			}elseif($temp_ext -in $supported_txt_ext){
-				if($global:text_select -eq "None"){
-					$global:text_select = Split-Path-Ext($item)
-				}
-				$result = &$ffmpeg_process -in $item -out $global:file_destination -extention $global:text_select
-			}else{
-				write-error "File has a unsupported extention"
-				$result = $False
-			}
-			if($result){
-				$file_index++
-			}
-			$DropBox.EndUpdate();					
-		}
-	}
-	if ($file_transferred -ne $file_index){
-		&$flux_warning_prompt
-		$Flux_form.ShowDialog() | Out-null
+    # Label Extraction Process per item in full path array
+    # Start with extracting the first item
+
+    for([int] $index = $($DropBox.Items.Count - 1); $index -ge 0; $index--){
+        # Pull the full path
+        [string] $item = $global:full_path[$index]
+        [string] $new_label
+        [string] $new_extension
+        [string] $new_leaf
+        # Check if pulled path has a leaf in the drop box
+        if((Split-Path $item -leaf) -notin $DropBox.Items){
+            continue # <-- Caution
+        }else{
+            # Full path will be fluxed then update the dropbox
+            # Check the extension to determine the file type
+            [string] $temp_ext = [system.string]::Concat("*", (Split-Path-Ext($item)))
+            
+            # Pull new Label and extension based on file type
+            if($temp_ext -in $supported_video_ext){
+                if($global:vid_select -eq "None"){
+                    $new_extension = Split-Path-Ext($item)
+                }else{
+                    $new_extension = $global:vid_select
+                }
+                # Pull the new label
+                if($get_new_label){
+                    $new_label = $global:new_video_label
+                }else{
+                    $new_label = $(Get-Item $item).BaseName
+                 }
+            
+            }elseif($temp_ext -in $supported_pic_ext){
+                if($global:pic_select -eq "None"){
+                    $new_extension = Split-Path-Ext($item)
+                }else{
+                    $new_extension = $global:pic_select
+                }
+                
+                # Pull the new label
+                if($get_new_label){
+                    $new_label = $global:new_picture_label
+                }else{
+                    $new_label = $(Get-Item $item).BaseName
+                 }
+                				
+            }elseif($temp_ext -in $supported_txt_ext){
+                if($global:text_select -eq "None"){
+                    $new_extension = Split-Path-Ext($item)
+                }else{
+                    $new_extension = $global:txt_select
+                }
+                 # Pull the new label
+                 if($get_new_label){
+                    switch(Split-Path-Ext($item)){
+                        ".txt"{
+                            $new_label = $global:new_txt_label
+                        }
+                        ".log"{
+                            $new_label = $global:new_txt_label
+                        }
+                        ".ini"{
+                            $new_label = $global:new_ini_label
+                        }
+                        ".cfg"{
+                            $new_label = $global:new_cfg_label
+                        }
+                        ".config"{
+                            $new_label = $global:new_config_label
+                        }
+                    }
+                    $new_label = $global:new_txt_label
+                 }else{
+                    $new_label = $(Get-Item $item).BaseName
+                 }
+            }
+                
+            # Determine if the label needs to be translated
+            $new_label = &$Replace_AbbrevText -input_buffer $new_label
+            # Create a leaf
+            $new_leaf = [System.String]::Concat($new_label,$new_extension)
+            # Ensure the leaf is not in the destination output
+            $new_leaf = Invoke-DupeFilePrevention -leaf $new_leaf -destination $output_location
+            
+            # Save a copy of the File
+            if($create_copy){
+                [string] $original_leaf = (Split-Path $item -leaf)
+                if(Test-Path "$(Get-RootDirectory)\saved_files\$original_leaf"){
+                    $original_leaf = (Invoke-DupeFilePrevention -leaf $original_leaf -destination "$(Get-RootDirectory)\saved_files\")
+                    Copy-Item $item "$(Get-RootDirectory)\saved_files\$original_leaf"
+                }else{
+                    Copy-Item $item "$(Get-RootDirectory)\saved_files\$original_leaf"
+                }
+            }
+            
+            if(!($only_rename) -and ($temp_ext -notin $supported_txt_ext)){
+                # Flux Process, This will also move the file to destination
+                # Text Files Not Supported
+                $result = (Invoke-FluxProcess -file_path $item -new_leaf $new_leaf -destination $output_location -desired_quality $desired_quality `
+                -audio $audio -frame_rate $frame_rate -scale $scale -bit_rate $bit_rate -ratio $ratio -encoder $encoder)
+            }else{
+                # Move Process
+                Copy-Item $item "$output_location\$new_leaf"
+                if(Test-Path "$output_location\$new_leaf"){
+                    $result = $true
+                }else{
+                    $result = $false
+                }
+            }
+            
+            if(!$result){
+                # Call the Attention Form
+                . "$PSScriptroot\..\attention\attention_form.ps1" "flux_file_transfer_error"
+                return
+            }else{
+                #Update the dropbox 
+                $DropBox.BeginUpdate()
+                $DropBox.Items.RemoveAt($index)
+                $DropBox.EndUpdate()
+            } 
+        }
+        $file_counter += 1				
+    }
+	
+    # Post Process
+    # Check if all files made it over to the destination
+	if ($file_counter -ne $file_transferred){
+        . "$PSScriptRoot\..\attention\attention_form.ps1" "flux_file_transfer_error"
+        $file_counter = 0
 	}
 	else{
-		start $global:file_destination
+		explorer $output_location
 		$DropBox.items.clear()
-		$global:array = @()
+		$global:full_path = @()
 		$Drop_Prompt.Visible = $True
-		remove_root_files
+        if($(Get-RootFolderItems $supported_ext).length -gt 0){
+            Get-RootFolderItems $supported_ext | Foreach-Object{
+                Invoke-DecideFileOutcome -path $_ -delete $True
+            }
+        }
 	}
 	return
 }
 
+#Extract New Labels 
+$extract_new_labels = {
+    if($format_tmi_custom.Checked){
+        if($Video_TextBox.Text -eq ""){
+            $global:new_video_label = "{project}-{bug}_{device}_{build}_{1}"
+        }else{
+            $global:new_video_label = $Video_TextBox.Text
+        }
+        if($Picture_TextBox.Text -eq ""){
+            $global:new_picture_label = "{project}-{bug}_{device}_{build}_{1}"
+        }else{
+            $global:new_picture_label = $Picture_TextBox.Text
+        }
+        if($Text_TextBox.Text -eq ""){
+            $global:new_txt_label = "{project}-{bug}_{device}_{build}_{1}"
+            $global:new_ini_label = $global:new_txt_label
+            $global:new_log_label = $global:new_txt_label
+            $global:new_cfg_label = $global:new_txt_label
+            $global:new_config_label = $global:new_txt_label
+        }else{
+            $global:new_txt_label = $Text_TextBox.Text
+            $global:new_ini_label = $global:new_txt_label
+            $global:new_log_label = $global:new_txt_label
+            $global:new_cfg_label = $global:new_txt_label
+            $global:new_config_label = $global:new_txt_label
+        }
+        return
+    }
+    if($verify_cbx.Checked -and $format_tmi_jira_regres.Checked){
+        if($global:Regress_values[0].length -gt 0){
+              $global:new_video_label = $global:Regress_values[0]
+        }else{
+             $global:new_video_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[1].length -gt 0){
+              $global:new_picture_label = $global:Regress_values[0]
+        }else{
+             $global:new_picture_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[2].length -gt 0){
+              $global:new_txt_label = $global:Regress_values[0]
+        }else{
+             $global:new_txt_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[3].length -gt 0){
+              $global:new_ini_label = $global:Regress_values[0]
+        }else{
+             $global:new_ini_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[4].length -gt 0){
+              $global:new_log_label = $global:Regress_values[0]
+        }else{
+             $global:new_log_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[5].length -gt 0){
+              $global:new_cfg_label = $global:Regress_values[0]
+        }else{
+             $global:new_cfg_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Regress_values[6].length -gt 0){
+              $global:new_config_label = $global:Regress_values[0]
+        }else{
+             $global:new_config_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+    }else{
+        if($global:Preset_values[0].length -gt 0){
+             $global:new_video_label = $global:Preset_values[0]
+        }else{
+            $global:new_video_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[1].length -gt 0){
+              $global:new_picture_label = $global:Preset_values[0]
+        }else{
+             $global:new_picture_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[2].length -gt 0){
+              $global:new_txt_label = $global:Preset_values[0]
+        }else{
+             $global:new_txt_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[3].length -gt 0){
+              $global:new_ini_label = $global:Preset_values[0]
+        }else{
+             $global:new_ini_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[4].length -gt 0){
+              $global:new_log_label = $global:Preset_values[0]
+        }else{
+             $global:new_log_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[5].length -gt 0){
+              $global:new_cfg_label = $global:Preset_values[0]
+        }else{
+             $global:new_cfg_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+        if($global:Preset_values[6].length -gt 0){
+              $global:new_config_label = $global:Preset_values[0]
+        }else{
+             $global:new_config_label = "{project}-{bug}_{device}_{build}_{1}"
+        }
+    }
+    return
+}
+
+# Determine the file output destination
+$define_output_destination = {
+    [System.Windows.Forms.OpenFileDialog] $output_directory = $(Invoke-OpenFolderDialog -InitialDirectory $(Get-RootDirectory))
+    if($output_directory.ShowDialog() -eq "OK"){
+        [string] $output_directory = (Split-Path $output_directory.FileName -Parent)
+        if(Test-Path $output_directory){
+            return $output_directory
+        }
+        else{
+            return "0x1" # Call Prompt to define a output location
+        }
+    }else{
+        return "0x1" # Call Prompt to define a output location
+    }
+}
 # Checks if listed items from drop box are still in the directories
 # Also checks if root folder items are still valid
 $check_if_change = {
@@ -723,10 +978,12 @@ $check_if_change = {
 
 #Checks if any file was added to the root folder regardless if DropBox was used
 $check_root_folder =  { 
-    #There Exist supported files in the root folder 
-    if($global:full_path.count -gt 0){
-		foreach($files in $global:full_path)
-		{
+    #There Exist supported files in the root folder
+   
+    [string[]] $root_files = $(Get-RootFolderItems $supported_ext)
+    
+    if($root_files.count -gt 0){
+		foreach($files in $root_files){
 			if((Split-Path $files -leaf) -notin $DropBox.Items){
 				&$add_to_dropbox -files $files
 			}
@@ -738,6 +995,80 @@ $check_root_folder =  {
 	}
 }
 
+# Project TextBox Text Change
+$Project_TextBox_TextChanged ={
+    $Project_TextBox.Text = $Project_TextBox.Text.Trim(" ")
+}
+
+# Bug TextBox Text Change
+$Bug_TextBox_TextChanged ={
+    $Bug_TextBox.Text = $Bug_TextBox.Text.Trim(" ")
+}
+
+# Build TextBox Text Change
+$Build_TextBox_TextChanged ={
+    $Build_TextBox.text = $Build_TextBox.text.trim(" ")
+}
+
+# Build TextBox Text Change
+$Video_TextBox_TextChanged ={
+    $Video_TextBox.Text = $Video_TextBox.Text.Trim(" ")
+}
+
+# Build TextBox Text Change
+$Picture_TextBox_TextChanged ={
+    $Picture_TextBox.Text = $Picture_TextBox.Text.Trim(" ")
+}
+
+# Build TextBox Text Change
+$Text_TextBox_TextChanged ={
+    $Text_TextBox.Text = $Text_TextBox.Text.Trim(" ")
+}
+
+#Quality TextBox Text Change
+$Quality_List_TextChange = {
+    if($Quality_List.Text -notin $Quality_List.Items){
+        $Quality_List.SelectedIndex = 0
+    }
+}
+
+# Frames Per Second Combo Box Changed
+$fps_cbx_TextChanged = {
+    if($fps_cbx.Text -notin $fps_cbx.Items){
+        $fps_cbx.SelectedIndex = 0
+    }
+}
+
+# Bit Rate Combo Box Changed
+$bit_cbx_TextChanged = {
+    if($bit_cbx.Text -notin $bits_cbx.Items){
+        $bit_cbx.SelectedIndex = 0
+    }
+}
+
+# Frame Rate Combo Box Changed
+$frame_cbx_TextChanged = {
+    if($frame_cbx.Text -notin $frame_cbx.Items){
+        $frame_cbx.SelectedIndex = 0
+    }
+}
+
+# Frame Rate Combo Box Changed
+$ratio_cbx_TextChanged = {
+    if($ratio_cbx.Text -notin $ratio_cbx.Items){
+        $ratio_cbx.SelectedIndex = 0
+    }
+}
+
+#Remove unneccessary Spaces after the text
+$trim_textboxes = {
+    $Project_TextBox.Text = $Project_TextBox.Text.Trim(" ")
+    $Build_TextBox.text = $Build_TextBox.text.trim(" ")
+    $Bug_TextBox.Text = $Bug_TextBox.Text.Trim(" ")
+    $Video_TextBox.Text = $Video_TextBox.Text.Trim(" ")
+    $Picture_TextBox.Text = $Picture_TextBox.Text.Trim(" ")
+    $Text_TextBox.Text = $Text_TextBox.Text.Trim(" ")
+}
 # Checks and replaces abbreviation texts in the input buffer
 $Replace_AbbrevText = {
 	param([string]$input_buffer)
@@ -823,7 +1154,12 @@ $load_gui_values = {
         "1"{&$hide_custom_ui}
         Default{&$hide_custom_ui}
     }
-    
+    switch($values[36]){
+        "Dark"{&$dark_theme}
+        "Light"{&$light_theme}
+        Default{&$light_theme}
+    }
+    $global:last_path = $values[36]
     if($global:vid_select -eq ""){
         $global:vid_select = ".mp4"
     }
@@ -986,13 +1322,21 @@ $save_gui_values = {
         -Path (Split-Path $Save_dir -parent)
     }
     
-    [string[]] $buffer = &$coe_validator
-    $global:vid_select = $buffer[0];$global:pic_select = $buffer[1];$global:text_select = $buffer[2]
+    
+    $global:vid_select = &$coe_validator_video
+    $global:pic_select = &$coe_validator_picture
+    $global:text_select = &$coe_validator_text
 
     if($Check_Box.Checked){[string] $temp_1 = "1"}Else{[string] $temp_1 = "0"}
     if($Nvidia_Box.Checked){[string] $temp_2 = "1"}Else{[string] $temp_2 = "0"}
     if($backup_tmi_yes.Checked){[string] $temp_3 = "1"}Else{[string] $temp_3 = "0"}
     if($verify_cbx.Checked -eq  $True){$temp_4 = "1"}Else{$temp_4 = "0"}
+
+    if($theme_tmi_light.Checked){
+        [string] $theme_name = $theme_tmi_light.Text
+    }else{
+        [string] $theme_name = $theme_tmi_dark.Text
+    }
     
     switch($Jira_Panel){
 		{$_.visible -eq $false}{
@@ -1042,40 +1386,79 @@ $save_gui_values = {
     "vid_ext=$($global:vid_select)" >> $Save_dir
     "pic_ext=$($global:pic_select)" >> $Save_dir
     "text_ext=$($global:text_select)" >> $Save_dir
+    "theme=$($theme_name)" >> $Save_dir
+    "last_path=$($global:last_path)" >> $Save_dir
 }
 
-
 # Validate selected extensions for fluxing
-# Redo this
-$coe_validator = {
-	if(!$video_tmi_mp4.Checked){
-		if(!$video_tmi_mov.Checked){
-			if(!$video_tmi_mkv.Checked){
-				if(!$video_tmi_avi.Checked){
-					[string] $vid = "None"
-				}else{[string] $vid = ".avi"}
-			}else{[string] $vid = ".mkv"}
-		}else{[string] $vid = ".mov"}
-	}else{[string] $vid = ".mp4"}
-	if(!$pic_tmi_jpg.Checked){
-		if(!$pic_tmi_jpeg.Checked){
-			if(!$pic_tmi_png.Checked){
-				[string] $pic = "None"
-			}else{[string] $pic = ".png"}
-		}else{[string] $pic = ".jpeg"}
-	}else{[string] $pic = ".jpg"}
-	if(!$text_tmi_text.Checked){
-		if(!$text_tmi_log.Checked){
-			if(!$text_tmi_ini.Checked){
-				if(!$text_tmi_cfg.Checked){
-					if(!$text_tmi_config.Checked){
-						[string] $text = "None"
-					}else{[string] $text = ".config"}
-				}else{[string] $text = ".cfg"}
-			}else{[string] $text = ".ini"}
-		}else{[string] $text = ".log"}
-	}else{[string] $text = ".txt"}
-	return $vid, $pic, $text
+$coe_validator_video = {
+    foreach($type in $coe_tmi_video.DropDownItems){
+        if($type.Checked){
+            switch($type.Text){
+                "MP4"{
+                    return ".mp4"
+                }
+                "MOV"{
+                    return ".mov"
+                }
+                "MKV"{
+                    return ".mkv"
+                }
+                "AVI"{
+                    return ".avi"
+                }
+                "No Change"{
+                    return "None"
+                }
+            }
+        }
+    }
+}
+$coe_validator_picture = {
+    foreach($type in $coe_tmi_pic.DropDownItems){
+        if($type.Checked){
+            switch($type.Text){
+                "JPG"{
+                    return ".jpg"
+                }
+                "JPEG"{
+                    return ".jpeg"
+                }
+                "PNG"{
+                    return ".png"
+                }
+                "No Change"{
+                    return "None"
+                }
+            }
+        }
+    }
+}
+$coe_validator_text = {
+    foreach($type in $coe_tmi_text.DropDownItems){
+        if($type.Checked){
+            switch($type.Text){
+                "TXT"{
+                    return ".txt"
+                }
+                "LOG"{
+                    return ".log"
+                }
+                "INI"{
+                    return ".ini"
+                }
+                "CFG"{
+                    return ".cfg"
+                }
+                "CONFIG"{
+                    return ".config"
+                }
+                "No Change"{
+                    return "None"
+                }
+            }
+        }
+    }
 }
 
 # Main Form Keydown Event
@@ -1130,8 +1513,23 @@ $form_loading = {
     # Load Values from last session
     # UI elements will be populated based on the last saved session
 	$global:last_path = &$load_gui_values -Load_dir $Load_dir
-    #write-host "Global Preset Values from main form: $global:Preset_values"
+    
+    # If GUI Load Phase does not initialize the desired output types
+    if($global:vid_select -eq ""){
+		$global:vid_select = ".mp4"
+	}
+	if($global:pic_select -eq ""){
+		$global:pic_select = ".jpg"
+	}
+	if($global:text_select -eq ""){
+		$global:text_select = ".txt"
+	}
 
+    # Remove any Extra Spaces on Input Values if config file was modified
+    &$trim_textboxes
+
+    &$check_root_folder
+    
     # Uncomment to get logs
     #clear-Host 
 }
@@ -1146,6 +1544,7 @@ $gui_refresh = {
     &$quality_list_checker
     # Check if all inputs are filled to enable Rename & Flux Buttons
     &$check_inputs
+    
 }
 
 # Form Closing Event
@@ -1166,3 +1565,270 @@ $form_dispose = {
 	$Media_Panel.Dispose()
 	$main_form.Dispose()
 }
+
+$light_theme = {
+    $theme_tmi_light.Checked = $True
+    $theme_tmi_dark.Checked = $False
+
+    $main_form.BackColor = "Control"
+    $main_form.ForeColor = "Black"
+    $main_mst.BackColor = "Black"
+    #$main_mst.Items | 
+    $main_tmi_file.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $main_tmi_format.DropDownItems | %{
+         if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $coe_tmi_video.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $settings_tmi_theme.DropDownItems | %{
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $settings_tmi_crf.DropDownItems | %{
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $coe_tmi_pic.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $coe_tmi_text.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $settings_tmi_backup.DropDownItems | %{
+        
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $settings_tmi_coe.DropDownItems | %{
+         if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $main_tmi_settings.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*light*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+    $Jira_Panel.Controls | %{
+        if(($_.GetType()).Name -in @("TextBox","ComboBox")){
+            $_.BackColor = "Window"
+        }else{
+            $_.BackColor = "Control"
+        }
+        $_.ForeColor = "Black"
+    }
+   
+    $Custom_Panel.Controls | %{
+        if(($_.GetType()).Name -in @("TextBox","ComboBox")){
+            $_.BackColor = "Window"
+        }else{
+            $_.BackColor = "Control"
+        }
+        $_.ForeColor = "Black"
+    }
+
+    $Media_Panel.Controls | %{
+        if(($_.GetType()).Name -in @("TextBox","ComboBox")){
+            $_.BackColor = "Window"
+        }else{
+            $_.BackColor = "Control"
+        }
+        $_.ForeColor = "Black"
+    }
+
+    $main_form.Controls | %{
+        $_.BackColor = "Control"
+        $_.ForeColor = "Black"
+    }
+}
+
+$dark_theme = {
+    $theme_tmi_light.Checked = $False
+    $theme_tmi_dark.Checked = $True
+
+    $main_form.BackColor = "64,64,64"
+    $main_form.ForeColor = "Window"
+
+    $main_tmi_file.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $main_tmi_format.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $coe_tmi_video.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $settings_tmi_theme.DropDownItems | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $settings_tmi_crf.DropDownItems | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $coe_tmi_pic.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $coe_tmi_text.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $settings_tmi_backup.DropDownItems | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $settings_tmi_coe.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $main_tmi_settings.DropDownItems | %{
+        if(($_.GetType()).Name -eq "ToolStripSeparator"){
+            if($_.name -like "*dark*"){
+                $_.Visible = $True
+            }else{
+                $_.Visible = $False
+            }
+        }
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $Jira_Panel.Controls | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $Custom_Panel.Controls | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $Media_Panel.Controls | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Window"
+    }
+    $main_form.Controls | %{
+        $_.BackColor = "64,64,64"
+        $_.ForeColor = "Black"
+    }
+}
+$dark_theme_ToolStripSeperator = {
+    param([System.Windows.Forms.ToolStripMenuItem]$compare_object, [string] $name)
+    $object = New-Object System.Windows.Forms.ToolStripSeparator
+    $object.Name = $name
+    $object.Tag = $compare_object
+    $object.Visible = $false
+    $object.Add_Paint($dark_paint)
+    return $object
+}
+$dark_paint = [System.Windows.Forms.PaintEventHandler]{
+    param($sender, $e)
+    $width = $($sender.tag).Width
+    $height = $(New-Object System.Windows.Forms.ToolStripSeparator).Height
+    $brush = New-Object System.Drawing.SolidBrush("64,64,64")
+    $pen = New-Object System.Drawing.Pen("Window")
+
+    $e.Graphics.FillRectangle($brush, 0, 0, $width, $height);
+    $e.Graphics.DrawLine($pen, 10, $height/2, $width -10, $height/2)
+}
+
+
+. (Join-Path $PSScriptRoot "main_form.designer.ps1")

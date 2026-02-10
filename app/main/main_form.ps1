@@ -1,3 +1,5 @@
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
 # Unblock the corresponding files
 Unblock-File "$PSScriptRoot\main_form.designer.ps1"
 Unblock-File "$PSScriptRoot\main_form.events.ps1"

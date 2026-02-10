@@ -1,17 +1,12 @@
 . "$PSScriptRoot\Split-Path-Ext.ps1"
 . "$PSScriptRoot\Invoke-IterationPlacement.ps1"
-
+# Input is leaf value ex: title.extension
 function Invoke-DupeFilePrevention{
-	param([string] $path,[string] $new_extention, [string] $destination)
-	[string] $buffer = $path | Split-Path -Leaf
-	[string] $buffer_ext = Split-Path-Ext($path)
+	param([string] $leaf, [string] $destination)
+	[string] $buffer = $leaf
+	[string] $buffer_ext = Split-Path-Ext($leaf)
 
-    if($buffer_ext -ne $new_extention){
-		$buffer = $buffer.replace($buffer_ext,$new_extention).trim(" ")
-        $buffer_ext = $new_extention
-	}
-	
-    if(!($path -like "*{#}*")){
+    if(!($leaf -like "*{#}*")){
 		if(Test-Path "$($destination)\$($buffer)"){
 			$buffer = $buffer.replace($buffer_ext,"")
 			$buffer = $([system.string]::Concat($buffer,"({#})",$buffer_ext)).trim(" ")
@@ -26,5 +21,5 @@ function Invoke-DupeFilePrevention{
 	$buffer = $tempname
 	
 	return $buffer
-	 #returns new name without parent and interated with the same extention
+	 #returns leaf iterated if there exist a file of the same name in the destination
 }

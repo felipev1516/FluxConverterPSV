@@ -1,10 +1,10 @@
 # Script to get items from the root folder
-$rootPath = "$PSScriptRoot\.."
 function Get-RootFolderItems {
-    param (
-        [string[]] $SupportedExtensions
-    )
+    param([string[]] $SupportedExtensions=$args[0])
 
-    [string[]] $valid_files = @(Dir $rootPath -include $SupportedExtensions) #Check if supported files are in the root folder
-    return $valid_files.fullname
+    [string] $rootPath = (Resolve-Path "$PSScriptRoot\..").Path
+    
+    [string[]] $valid_files = @(Get-ChildItem "$rootPath\*" -include $SupportedExtensions).fullname #Check if supported files are in the root folder
+    
+    return $valid_files
 }

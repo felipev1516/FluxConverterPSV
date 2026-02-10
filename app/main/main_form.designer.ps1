@@ -1,10 +1,8 @@
-Add-Type -Assembly System.Windows.Forms
-Add-Type -Assembly System.Drawing
-
 # Main Form
 $main_form = New-Object System.Windows.Forms.Form -Property @{
     Text = "Flux Converter"
     Size = "410,300"
+    Font = "Segoe UI"
     StartPosition = "CenterScreen"
     FormBorderStyle = "Fixed3D"
     MaximizeBox = $false
@@ -59,9 +57,14 @@ $file_tmi_saveas = New-Object System.Windows.Forms.ToolStripMenuItem -Property @
     ShortcutKeys = "Ctrl + Shift + S"
 }; $file_tmi_saveas.Add_click($tmi_saveas_event)
 
-#separator
-$file_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
-
+#separators
+#light
+$file_tmi_sep_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "file_tmi_sep_light"
+}
+#dark
+$file_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $file_tmi_saveas -name "file_tmi_sep_dark"
+    
 #exit 
 $file_tmi_exit = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Exit"
@@ -69,7 +72,7 @@ $file_tmi_exit = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 }; $file_tmi_exit.Add_Click({$main_form.Close()})
 
 #Adding ToolStripItems into menu strip
-@($file_tmi_load,$file_tmi_open,$file_tmi_save,$file_tmi_saveas,$file_tmi_sep,$file_tmi_exit) | %{$main_tmi_file.DropDownItems.Add($_)}
+@($file_tmi_load,$file_tmi_open,$file_tmi_save,$file_tmi_saveas,$file_tmi_sep_light,$file_tmi_sep_dark,$file_tmi_exit) | %{$main_tmi_file.DropDownItems.Add($_)}
 
 #Rename format
 $main_tmi_format = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
@@ -92,19 +95,48 @@ $format_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @
 }; $format_tmi_none.Add_Click($disable_base_custom_ui)
 
 #separator
-$format_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
+#light
+$format_tmi_sep_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "format_tmi_sep_light"
+}
+#dark
+$format_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $format_tmi_none -name "format_tmi_sep_dark"
 
 #Reset
 $format_tmi_reset = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Reset Text Fields"
 }; $format_tmi_reset.Add_Click($format_tmi_reset_click)
 
-@($format_tmi_jira_regress, $format_tmi_custom,$format_tmi_none,$format_tmi_sep,$format_tmi_reset) | %{$main_tmi_format.DropDownItems.Add($_)}
+@($format_tmi_jira_regress, $format_tmi_custom,$format_tmi_none,$format_tmi_sep_light,$format_tmi_sep_dark,$format_tmi_reset) | %{$main_tmi_format.DropDownItems.Add($_)}
 
 #Settings
 $main_tmi_settings = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Settings"
 }
+#Change Renaming Format
+$settings_tmi_theme = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Theme"
+}
+
+#Light
+$theme_tmi_light = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Light"
+}; $theme_tmi_light.Add_Click($light_theme)
+
+#Dark
+$theme_tmi_dark = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
+    Text = "Dark"
+}; $theme_tmi_dark.Add_Click($dark_theme)
+
+$settings_tmi_theme.DropDownItems.AddRange(@($theme_tmi_light,$theme_tmi_dark))
+
+#Settings - Seperator 1
+#light
+$settings_tmi_sep_1_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "settings_tmi_sep_1_light"
+}
+#dark
+$settings_tmi_sep_1_dark = &$dark_theme_ToolStripSeperator -compare_object $settings_tmi_theme -name "settings_tmi_sep_1_dark"
 
 #Change Renaming Format
 $settings_tmi_crf = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
@@ -153,14 +185,18 @@ $video_tmi_avi = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Checked = $False
 }; $video_tmi_avi.Add_Click($AVI)
 
-$video_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
+$video_tmi_sep_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "video_tmi_sep_light"
+}
+
+$video_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $video_tmi_avi -name "video_tmi_sep_dark"
 
 $video_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "No Change"
     Checked = $False
 }; $video_tmi_none.Add_Click($V_None)
 
-$coe_tmi_video.DropDownItems.AddRange(@($video_tmi_mp4,$video_tmi_mov,$video_tmi_mkv,$video_tmi_avi,$video_tmi_sep,$video_tmi_none))
+$coe_tmi_video.DropDownItems.AddRange(@($video_tmi_mp4,$video_tmi_mov,$video_tmi_mkv,$video_tmi_avi,$video_tmi_sep_light,$video_tmi_sep_dark,$video_tmi_none))
 
 #Change Output Extentions - Picture Extentions
 $coe_tmi_pic = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
@@ -179,14 +215,17 @@ $pic_tmi_png = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "PNG"
 }; $pic_tmi_png.Add_Click($PNG)
 
-$pic_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
+$pic_tmi_sep_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "pic_tmi_sep_light"
+}
+$pic_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $pic_tmi_png -name "pic_tmi_sep_dark"
 
 $pic_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "No Change"
     Checked = $False
 }; $pic_tmi_none.Add_Click($P_None)
 
-$coe_tmi_pic.DropDownItems.Addrange(@($pic_tmi_jpg,$pic_tmi_jpeg,$pic_tmi_png,$pic_tmi_sep,$pic_tmi_none))
+$coe_tmi_pic.DropDownItems.Addrange(@($pic_tmi_jpg,$pic_tmi_jpeg,$pic_tmi_png,$pic_tmi_sep_light,$pic_tmi_sep_dark,$pic_tmi_none))
 
 #Change Output Extentions -Text Extention
 $coe_tmi_text = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
@@ -213,24 +252,29 @@ $text_tmi_config = New-Object System.Windows.Forms.ToolStripMenuItem -Property @
     Text = "CONFIG"
 }; $text_tmi_config.Add_Click($CONFIG)
 
-$text_tmi_sep = New-Object System.Windows.Forms.ToolStripSeparator
+$text_tmi_sep_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "text_tmi_sep_light"
+}
+
+$text_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $text_tmi_config -name "text_tmi_sep_dark"
 
 $text_tmi_none = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "No Change"
 }; $text_tmi_none.Add_Click($T_None)
 
-$coe_tmi_text.DropDownItems.AddRange(@($text_tmi_text,$text_tmi_log,$text_tmi_ini,$text_tmi_cfg,$text_tmi_config,$text_tmi_sep,$text_tmi_none))
+$coe_tmi_text.DropDownItems.AddRange(@($text_tmi_text,$text_tmi_log,$text_tmi_ini,$text_tmi_cfg,$text_tmi_config,$text_tmi_sep_light,$text_tmi_sep_dark,$text_tmi_none))
 $settings_tmi_coe.DropDownItems.AddRange(@($coe_tmi_video,$coe_tmi_pic,$coe_tmi_text))
 
 #In-Development 1/29/2026
 #Settings - Backup
 $settings_tmi_backup = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Save A Backup"
-    ToolTipText = "Save a copy of your fluxed files `n(Located in saved_files folder in Flux Converter directory)"
 }
+
 #Backup - Yes 
 $backup_tmi_yes = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Yes"
+    ToolTipText = "Save a copy of your pre-fluxed files `n(Located in saved_files folder in Flux Converter directory)"
 };$backup_tmi_yes.Add_Click($backup_yes_click)
 
 #Backup - No
@@ -240,9 +284,11 @@ $backup_tmi_no = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
 
 $settings_tmi_backup.DropDownItems.AddRange((@($backup_tmi_yes,$backup_tmi_no)))
 
-#Settings - Seperator 1
-$settings_tmi_sep_1 = New-Object System.Windows.Forms.ToolStripSeparator
-
+#Settings - Seperator 2
+$settings_tmi_sep_2_light = New-Object System.Windows.Forms.ToolStripSeparator -Property @{
+    Name = "settings_tmi_sep_2_light"
+}
+$settings_tmi_sep_2_dark = &$dark_theme_ToolStripSeperator -compare_object $settings_tmi_backup -name "settings_tmi_sep_2_dark"
 #Settings - Check For Update
 $settings_tmi_cfu = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
     Text = "Check For Update"
@@ -258,11 +304,16 @@ $settings_tmi_help = New-Object System.Windows.Forms.ToolStripMenuItem -Property
     Text = "Help"
 }; $settings_tmi_help.Add_Click($help_option_click)
 
-@($settings_tmi_crf,
+@(
+    $settings_tmi_theme,
+    $settings_tmi_sep_1_light,
+    $settings_tmi_sep_1_dark,
+    $settings_tmi_crf,
     $settings_tmi_coe,
     $settings_tmi_cfu,
     $settings_tmi_backup,
-    $settings_tmi_sep_1,
+    $settings_tmi_sep_2_light,
+    $settings_tmi_sep_2_dark,
     $settings_tmi_patch,
     $settings_tmi_help
     ) | %{$main_tmi_settings.DropDownItems.Add($_)}
@@ -277,7 +328,6 @@ $Tooltip = New-Object System.Windows.Forms.ToolTip -Property @{
     ShowAlways    = $true
 }
 
-
 #Drop Box
 $DropBox = New-Object System.Windows.Forms.ListBox -Property @{
     Location            = New-Object System.Drawing.Point(385,40)
@@ -288,19 +338,19 @@ $DropBox = New-Object System.Windows.Forms.ListBox -Property @{
     HorizontalScrollbar = $True
     SelectionMode       = "MultiExtended"
     Visible             = $False
+    BackColor = "Control"
 }
 
 # Drop Prompt (Drop File Icon)
 $Drop_Prompt = New-Object System.Windows.Forms.PictureBox -Property @{
     Image     = [System.Drawing.Image]::FromFile("$PSScriptroot\..\..\assets\icons\Drop_File_Icon.png")
     Size      = New-Object System.Drawing.Point(150,210)
-    BackColor = "ControlLightLight"
+    BackColor = "Control"
     Visible   = $False
     AllowDrop = $True
 }
 
 $DropBox.Add_KeyDown($DropBox_KeyDown)
-#$DropBox.add_MouseClick()
 $DropBox.add_DragEnter($DropBox_DragEnter)
 $DropBox.add_DragOver($DropBox_DragOver)
 $DropBox.add_DragDrop($DropBox_DragDrop)
@@ -398,7 +448,7 @@ $Project_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Project:"
     Location = New-Object System.Drawing.Point(5,10)
     AutoSize = $False
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Size     = New-Object System.Drawing.Size(63,22)
 }; $Project_Label.Add_MouseClick($clear_selections)
 
@@ -408,10 +458,10 @@ $Project_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Size     = New-Object System.Drawing.Size(50,20)
     AutoSize = $False
     Text     = ""
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
 }
 
-$Project_TextBox.Add_TextChanged($check_inputs)
+$Project_TextBox.Add_TextChanged($Project_TextBox_TextChanged)
 $Project_TextBox.Add_KeyDown({ &$key_event -obj $Project_TextBox })
 
 #Bug Label
@@ -419,7 +469,7 @@ $Bug_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Bug #:"
     Location = New-Object System.Drawing.Point(127,10)
     AutoSize = $False
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Size     = New-Object System.Drawing.Size(55,20)
 }; $Bug_Label.Add_MouseClick($clear_selections)
 
@@ -429,9 +479,9 @@ $Bug_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Width    = 100
     AutoSize = $true
     Text     = ""
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
 }
-$Bug_TextBox.Add_TextChanged($check_inputs)
+$Bug_TextBox.Add_TextChanged($Bug_TextBox_TextChanged)
 $Bug_TextBox.Add_KeyDown({ &$key_event -obj $Bug_TextBox })
 
 #Device Label
@@ -439,7 +489,7 @@ $Device_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Device:"
     Location = New-Object System.Drawing.Point(5,37)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Size     = New-Object System.Drawing.Size(60,22)
 }
 $Device_Label.Add_MouseClick($clear_selections)
@@ -448,7 +498,7 @@ $Device_Label.Add_MouseClick($clear_selections)
 $Device_List = New-Object System.Windows.Forms.ComboBox -Property @{
     Width            = 100
     AutoSize         = $true
-    Font             = "Microsoft Aldhabi, 9"
+    Font             = "Segoe UI, 9"
     Location         = New-Object System.Drawing.Point(70,37)
     MaxDropDownItems = 5
 }
@@ -458,7 +508,7 @@ $Device_List.Add_KeyDown({ &$key_event -obj $Device_List })
 #Verify Label
 $verify_lbl = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Verify:"
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Size     = New-object System.Drawing.Size(55,20)
     Location = New-Object System.Drawing.Point(178,35)
 }; $verify_lbl.Add_MouseClick($clear_selections)
@@ -482,7 +532,7 @@ $Branch_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Branch:"
     Location = New-Object System.Drawing.Point(5,63)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
 }; $Branch_Label.Add_MouseClick($clear_selections)
 
 #Branch List ComboBox
@@ -491,7 +541,7 @@ $Branch_List = New-Object System.Windows.Forms.ComboBox -Property @{
     Width            = 100
     AutoSize         = $true
     MaxDropDownItems = 5
-    Font             = "Microsoft Aldhabi, 9"
+    Font             = "Segoe UI, 9"
     Location         = New-Object System.Drawing.Point(70,65)
 }
 $Branch_List.Add_TextChanged($check_inputs)
@@ -502,7 +552,7 @@ $Build_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Build:"
     Location = New-Object System.Drawing.Point(172,63)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
 }; $Build_Label.Add_MouseClick($clear_selections)
 
 #Build Textbox
@@ -511,9 +561,9 @@ $Build_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Width    = 100
     AutoSize = $true
     Text     = ""
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
 }
-$Build_TextBox.Add_TextChanged($check_inputs)
+$Build_TextBox.Add_TextChanged($Build_TextBox_TextChanged)
 $Build_TextBox.Add_KeyDown({ &$key_event -obj $Build_TextBox })
 
 ##################### Custom Panel ################################################
@@ -529,7 +579,7 @@ $Custom_Panel.Add_MouseClick($clear_selections)
 # Video Label
 $Video_Label = New-Object System.Windows.Forms.Label -Property @{
     Location = New-Object System.Drawing.Point(5,15)
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Text     = "Videos:"
     AutoSize = $True
 }
@@ -539,15 +589,16 @@ $Video_Label.Add_MouseClick($clear_selections)
 $Video_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Location = New-Object System.Drawing.Point(75,15)
     Size     = "215,20"
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
     AutoSize = $True
 }
+$Video_TextBox.Add_TextChanged($Video_TextBox_TextChanged)
 $Video_TextBox.Add_KeyDown({ &$key_event -obj $Video_TextBox })
 
 # Picture Label
 $Picture_Label = New-Object System.Windows.Forms.Label -Property @{
     Location = New-Object System.Drawing.Point(5,37)
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Text     = "Pictures:"
     AutoSize = $True
 }
@@ -556,16 +607,17 @@ $Picture_Label.Add_MouseClick($clear_selections)
 # Picture TextBox
 $Picture_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Location = New-Object System.Drawing.Point(75,39)
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
     Size     = "215,20"
     AutoSize = $True
 }
+$Picture_TextBox.Add_TextChanged($Picture_TextBox_TextChanged)
 $Picture_TextBox.Add_KeyDown({ &$key_event -obj $Picture_TextBox })
 
 # Text Label
 $Text_Label = New-Object System.Windows.Forms.Label -Property @{
     Location = New-Object System.Drawing.Point(5,60)
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Text     = "Text:"
     AutoSize = $True
 }
@@ -574,10 +626,11 @@ $Text_Label.Add_MouseClick($clear_selections)
 # Text TextBox
 $Text_TextBox = New-Object System.Windows.Forms.TextBox -Property @{
     Location = New-Object System.Drawing.Point(75,63)
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
     Size     = "215,20"
     AutoSize = $True
 }
+$Text_TextBox.Add_TextChanged($Text_TextBox_TextChanged)
 $Text_TextBox.Add_KeyDown({ &$key_event -obj $Text_TextBox })
 
 ##################### Media Panel 1 ################################################
@@ -595,7 +648,7 @@ $Audio_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "With Audio"
     Location = New-Object System.Drawing.Point(23,6)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
 }
 $Audio_Label.Add_MouseClick($clear_selections)
 
@@ -612,7 +665,7 @@ $Quality_Label = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Visual Quality:"
     Location = New-Object System.Drawing.Point(117,10)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
 }
 
 # Quality List ComboBox
@@ -620,11 +673,11 @@ $Quality_List = New-Object System.Windows.Forms.ComboBox -Property @{
     Text             = ""
     Width            = 100
     AutoSize         = $true
-    Font             = "Microsoft Aldhabi, 9"
+    Font             = "Segoe UI, 9"
     Location         = New-Object System.Drawing.Point(227,10)
 }
 # Event handlers
-$Quality_List.Add_TextChanged($check_inputs)
+$Quality_List.Add_TextChanged($Quality_List_TextChange)
 $Quality_List.Add_SelectedIndexChanged($quality_list_checker)
 $Quality_List.Add_KeyDown({ &$key_event -obj $Quality_List })
 
@@ -644,7 +697,7 @@ $Nvidia_Lable = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Nvidia Encoder"
     Location = New-Object System.Drawing.Point(22,33)
     AutoSize = $true
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
 }
 
 # 1/29/2026
@@ -654,27 +707,21 @@ $Nvidia_Lable = New-Object System.Windows.Forms.Label -Property @{
 $Rename_Button = New-Object System.Windows.Forms.Button -Property @{
     Text     = "Rename Only"
     Size     = New-Object System.Drawing.Size(85,35)
-    Font     = "Microsoft Aldhabi, 8"
+    Font     = "Segoe UI, 7"
     Location = New-Object System.Drawing.Point(150,45)
     Enabled  = $false
 }
-$Rename_Button.Add_Click({
-    &$gui_refresh
-    #$flux_button_click $True
-})
+$Rename_Button.Add_Click($rename_button_click)
 
 # Flux Button
 $Flux_Button = New-Object System.Windows.Forms.Button -Property @{
     Text     = "Flux"
     Size     = New-Object System.Drawing.Size(85,35)
-    Font     = "Microsoft Aldhabi, 8"
+    Font     = "Segoe UI, 8"
     Location = New-Object System.Drawing.Point(240,45)
     Enabled  = $false
 }
-$Flux_Button.Add_Click({
-    &$gui_refresh
-    #$flux_button_click $False
-})
+$Flux_Button.Add_Click($flux_button_click)
 
 ###################### Media Panel 2 ################################################
 
@@ -688,7 +735,7 @@ $video_panel = New-Object System.Windows.Forms.Panel -Property @{
 
 # FPS Label
 $fps_lbl = New-Object System.Windows.Forms.Label -Property @{
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Text     = "FPS:"
     Location = "5,10"
     Size     = "40,21"
@@ -698,16 +745,17 @@ $fps_lbl = New-Object System.Windows.Forms.Label -Property @{
 $fps_cbx = New-Object System.Windows.Forms.ComboBox -Property @{
     Location = "50,10"
     Size     = "50,23"
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
 }
 $fps_cbx.Items.AddRange(@(15,30,45,60))
 $fps_cbx.SelectedIndex = 0
 $fps_cbx.Add_KeyDown({ &$key_event -obj $fps_cbx })
+$fps_cbx.Add_TextChanged($fps_cbx_TextChanged)
 
 # Bitrate Label
 $bit_lbl = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Bitrate kbits/s:"
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Location = "150,10"
     Size     = "100,20"
 }
@@ -717,16 +765,17 @@ $bit_cbx = New-Object System.Windows.Forms.ComboBox -Property @{
     Location = "255,10"
     Size     = "60,23"
     MaxDropDownItems = 4
-    Font             = "Microsoft Aldhabi, 9"
+    Font             = "Segoe UI, 9"
 }
 $bit_cbx.Items.AddRange(@(5000,4500,4000,3500,3000,2500,2000,1500,1000))
 $bit_cbx.SelectedIndex = 3
 $bit_cbx.Add_KeyDown({ &$key_event -obj $bit_cbx })
+$bit_cbx.Add_TextChanged($bit_cbx_TextChanged)
 
 # Frame Size Label
 $frame_lbl = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Frame Size:"
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Location = "5,40"
     Size     = "88,21"
 }
@@ -735,16 +784,17 @@ $frame_lbl = New-Object System.Windows.Forms.Label -Property @{
 $frame_cbx = New-Object System.Windows.Forms.ComboBox -Property @{
     Location = "95,40"
     Size     = "55,23"
-    Font     = "Microsoft Aldhabi, 9"
+    Font     = "Segoe UI, 9"
 }
 $frame_cbx.Items.AddRange(@(1080,720,480))
 $frame_cbx.SelectedIndex = 1
 $frame_cbx.Add_KeyDown({ &$key_event -obj $frame_cbx })
+$frame_cbx.Add_TextChanged($frame_cbx_TextChanged)
 
 # Aspect Ratio Label
 $ratio_lbl = New-Object System.Windows.Forms.Label -Property @{
     Text     = "Aspect Ratio:"
-    Font     = "Microsoft Aldhabi, 11"
+    Font     = "Segoe UI, 11"
     Location = "155,40"
     Size     = "95,20"
 }
@@ -754,19 +804,19 @@ $ratio_cbx = New-Object System.Windows.Forms.ComboBox -Property @{
     Location        = "255,40"
     Size            = "60,23"
     MaxDropDownItems = 4
-    Font             = "Microsoft Aldhabi, 9"
+    Font             = "Segoe UI, 9"
 }
 $ratio_cbx.Items.AddRange(@("Auto","1.85:1","2.35:1","3:2","4:3","5:4","9:16","16:9","16:10"))
 $ratio_cbx.SelectedIndex = 0
 $ratio_cbx.Add_KeyDown({ &$key_event -obj $ratio_cbx })
-
+$ratio_cbx.Add_TextChanged($ratio_cbx_TextChanged)
 
 
 # Version Label
 $Version_Lable = New-Object System.Windows.Forms.Label -Property @{
-    Text     = "V - " + $version
+    Text     = "V - 4.0.0 DEV"
     Location = New-Object System.Drawing.Point(15,240)
-    Font     = "Microsoft Aldhabi, 8"
+    Font     = "Segoe UI, 8"
     AutoSize = $True
 }
 

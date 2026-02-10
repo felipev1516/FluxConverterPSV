@@ -12,14 +12,14 @@ Function Invoke-DecideFileOutcome {
 	$save_files_dir = "$PSScriptRoot\..\saved_files"
     
 	if(!(Test-Path $save_files_dir)){
-        mkdir $save_files_dir | Out-Null
+        mkdir $save_files_dir 
     }
 	
 	if(!$delete){
-		if($($path | Split-path -Leaf) -notin $(dir "$($save_files_dir)\*" -name)){
+		if($($path | Split-path -Leaf) -notin $(Get-ChildItem "$($save_files_dir)\*" -name)){
 			Move-Item $path -Destination $save_files_dir
 		}else{
-			$new_name = Invoke-DupeFilePrevention -path $path -new_extention Split-Path-Ext($path) -destination "$save_files_dir"
+			$new_name = Invoke-DupeFilePrevention -leaf $(Split-Path $path -leaf) -destination "$save_files_dir"
 			Move-Item $path -Destination "$($save_files_dir)\$($new_name)"
 		}	
 	}else{

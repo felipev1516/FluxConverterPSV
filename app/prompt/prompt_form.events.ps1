@@ -28,7 +28,7 @@ $okay_button_Click = {
 $server_prompt = {
 
     $prompt_form | ForEach-Object{
-        $_.ClientSize = "496,268"
+        $_.ClientSize = "496,250"
         $_.Text = [System.String]'Server Unavailable'
     }
 
@@ -49,7 +49,7 @@ $server_prompt = {
     }
     
     $server_button_panel | ForEach-Object{
-        $_.location = "30, 166"
+        $_.location = "30, 145"
         $_.size = "424,88"
         $_.Visible = $True
     }
@@ -277,7 +277,7 @@ $placeholder_prompt = {
 }
 
 $prompt_form_Load = {
-
+    
 }
 Add-Type -AssemblyName System.Windows.Forms
 . (Join-Path $PSScriptRoot 'prompt_form.designer.ps1')

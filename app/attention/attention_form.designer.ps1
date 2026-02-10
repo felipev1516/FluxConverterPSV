@@ -13,7 +13,7 @@ $Attention_form = New-Object System.Windows.Forms.Form -Property @{
 }
 $Prompt_Label = New-Object System.Windows.Forms.Label -Property @{
     Text = "Placeholder"
-    Font = "Microsoft Aldhabi, 16, style=Bold"
+    Font = "Segoe UI, 16, style=Bold"
     TextAlign = "MiddleCenter"
     Location = "68,15"
     Size = "220,40"
@@ -22,14 +22,14 @@ $Prompt_Label = New-Object System.Windows.Forms.Label -Property @{
 #Flux Warning Label
 $Warning_Label = New-Object System.Windows.Forms.Label -Property @{
     Text      = "Placeholder"
-    Font      = "Microsoft Aldhabi, 10"
+    Font      = "Segoe UI, 10"
     TextAlign = "MiddleCenter"
     AutoSize  = $False
 }
 $Prompt_Button = New-Object System.Windows.Forms.Button -Property @{
     Size    = New-Object System.Drawing.Size(120,40)
     Text    = "Okay"
-    Font    = "Microsoft Aldhabi, 8, style=Bold"
+    Font    = "Segoe UI, 8, style=Bold"
     Visible = $False
 }
 $Prompt_Button.Add_Click($Prompt_Button_click)
@@ -37,7 +37,7 @@ $Prompt_Button.Add_Click($Prompt_Button_click)
 $Yes_Reset_Button = New-Object System.Windows.Forms.Button -Property @{
     Text    = "YES"
     Size    = New-Object System.Drawing.Size(120,40)
-    Font    = "Microsoft Aldhabi, 8, style=Bold"
+    Font    = "Segoe UI, 8, style=Bold"
     Visible = $False
 }
 $Yes_Reset_Button.Add_Click($Yes_Reset_Button_click)
@@ -45,7 +45,7 @@ $Yes_Reset_Button.Add_Click($Yes_Reset_Button_click)
 $Yes_Button = New-Object System.Windows.Forms.Button -Property @{
     Text     = "YES"
     Size     = New-Object System.Drawing.Size(120,40)
-    Font     = "Microsoft Aldhabi, 8, style=Bold"
+    Font     = "Segoe UI, 8, style=Bold"
     Location = New-Object System.Drawing.Point(0,0)
     Visible  = $False
 }
@@ -54,7 +54,7 @@ $Yes_Button.Add_Click($Yes_Button_click)
 $No_Button = New-Object System.Windows.Forms.Button -Property @{
     Text     = "NO"
     Size     = New-Object System.Drawing.Size(120,40)
-    Font     = "Microsoft Aldhabi, 8, style=Bold"
+    Font     = "Segoe UI, 8, style=Bold"
     Location = New-Object System.Drawing.Point(0,0)
     Visible  = $False
 }

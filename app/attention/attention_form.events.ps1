@@ -1,5 +1,3 @@
-. "$PSScriptRoot\..\restart\restart_form.designer.ps1"
-
 $flux_warning_prompt = {
     $Attention_form.text = "Missing Media"
     $Prompt_Label.Text = "Flux Unsuccessful!"
@@ -15,7 +13,7 @@ $flux_warning_prompt = {
     $No_Button.Visible	= $False
     $Yes_Reset_Button.Visible = $False
 }
-$flux_file_extentions_error = {
+$flux_file_transfer_error = {
     $Attention_form.Text = "Error"
     $Prompt_Label.Text = "Flux Unsuccessful!"
     
@@ -105,3 +103,5 @@ $Yes_Button_click = {
 }
 
 $No_Button_click = {$Attention_form.Close()}
+
+. (Join-Path $PSScriptroot "attention_form.designer.ps1")
