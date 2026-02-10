@@ -10,4 +10,5 @@ switch ($prompt_type) {
     "update_file_error_prompt" { &$update_file_error_prompt }
     default { throw "Invalid prompt type specified: $prompt_type" }
 }
+
 return $Attention_form.ShowDialog()
