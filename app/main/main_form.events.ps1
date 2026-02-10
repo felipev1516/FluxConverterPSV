@@ -95,7 +95,11 @@ $tmi_saveas_event = {
 # $format_tmi_reset Click Event
 $format_tmi_reset_click = {
      # This will call the attention form to prompt user for reset confirmation
-    . "$PSScriptRoot\..\attention\attention_form.ps1" "flux_reset_prompt"
+    
+    if($(. "$PSScriptRoot\..\attention\attention_form.ps1" "flux_reset_prompt") -eq "Yes"){
+        
+        &$blank_ui # <-- Memory Issue
+    }
 }
 
 # Change Rename File Jira Click Event
@@ -1041,7 +1045,7 @@ $fps_cbx_TextChanged = {
 
 # Bit Rate Combo Box Changed
 $bit_cbx_TextChanged = {
-    if($bit_cbx.Text -notin $bits_cbx.Items){
+    if($bit_cbx.Text -notin $bit_cbx.Items){
         $bit_cbx.SelectedIndex = 0
     }
 }
@@ -1234,17 +1238,16 @@ $blank_ui = {
     $Check_Box.Checked = $False
     $Quality_List.SelectedIndex = 0
     $Nvidia_Box.Checked = $False
-    $backup_tmi_yes.Checked = $False
     $verify_cbx.Checked = $False
     $Video_TextBox.Text = ""
     $Picture_TextBox.Text = ""
     $Text_TextBox.Text = ""
-    $fps_cbx.SelectedIndex = 0
-    $bit_cbx.SelectedIndex = 3
-    $frame_cbx.SelectedIndex = 1
-    $ratio_cbx.SelectedIndex = 0
-    $global:Preset_values = @()
-    $global:Regress_values = @()
+    #if($video_panel.Visible){
+        $fps_cbx.SelectedIndex = 0
+        $bit_cbx.SelectedIndex = 3
+        $frame_cbx.SelectedIndex = 1
+        $ratio_cbx.SelectedIndex = 0
+    #}
 }
 
 # Format and load GUI values into respective elements

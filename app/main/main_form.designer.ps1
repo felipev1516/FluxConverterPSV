@@ -104,7 +104,7 @@ $format_tmi_sep_dark = &$dark_theme_ToolStripSeperator -compare_object $format_t
 
 #Reset
 $format_tmi_reset = New-Object System.Windows.Forms.ToolStripMenuItem -Property @{
-    Text = "Reset Text Fields"
+    Text = "Reset All"
 }; $format_tmi_reset.Add_Click($format_tmi_reset_click)
 
 @($format_tmi_jira_regress, $format_tmi_custom,$format_tmi_none,$format_tmi_sep_light,$format_tmi_sep_dark,$format_tmi_reset) | %{$main_tmi_format.DropDownItems.Add($_)}

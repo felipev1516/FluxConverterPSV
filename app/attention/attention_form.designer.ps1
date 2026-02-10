@@ -1,5 +1,3 @@
-. "$PSScriptroot\attention_form.events.ps1"
-
 $icons_directory = "$PSScriptroot\..\..\assets\icons"
 
 #Attention form 
@@ -10,7 +8,8 @@ $Attention_form = New-Object System.Windows.Forms.Form -Property @{
     MaximizeBox = $false
     StartPosition = "CenterScreen"
     Icon = "$icons_directory\flux_cap_logo.ico"
-}
+}; $Attention_form.Add_FormClosing($form_closing)
+
 $Prompt_Label = New-Object System.Windows.Forms.Label -Property @{
     Text = "Placeholder"
     Font = "Segoe UI, 16, style=Bold"
