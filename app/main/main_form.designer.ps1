@@ -814,7 +814,7 @@ $ratio_cbx.Add_TextChanged($ratio_cbx_TextChanged)
 
 # Version Label
 $Version_Lable = New-Object System.Windows.Forms.Label -Property @{
-    Text     = "V - 4.0.0 STAGE"
+    Text     = "V - 4.0.0 MAIN"
     Location = New-Object System.Drawing.Point(15,240)
     Font     = "Segoe UI, 8"
     AutoSize = $True

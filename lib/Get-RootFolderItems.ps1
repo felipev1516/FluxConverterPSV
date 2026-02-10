@@ -4,7 +4,7 @@ function Get-RootFolderItems {
 
     [string] $rootPath = (Resolve-Path "$PSScriptRoot\..").Path
     
-    [string[]] $valid_files = @(Get-ChildItem "$rootPath\*" -include $SupportedExtensions).fullname #Check if supported files are in the root folder
+    [string[]] $valid_files = @(Get-ChildItem "$rootPath\*" -include $SupportedExtensions -Exclude "LICENSE.txt").fullname #Check if supported files are in the root folder
     
     return $valid_files
 }

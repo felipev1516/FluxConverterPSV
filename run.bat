@@ -1,6 +1,5 @@
 @echo off
 SET FCroot=%~dp0
 SET FCpath=%FCroot%app\main\main_form.ps1
-
-powershell -ExecutionPolicy bypass -command "%FCpath%"
+cmd /c start /min "" powershell -ExecutionPolicy bypass -WindowStyle Hidden -command "&{unblock-file %FCpath%; . %FCpath%}"
 cls

@@ -110,6 +110,5 @@ deleted and other files to have incorrect labels applied to them.
 
 4.0.0
 - Change Drop Box Items Name into just Name not Full directory
-
-5.0.0
-- Directory Restructuring 
+- Added Themes (Light and Dark)
+- This Program will no longer receive any more features and updates, we will continue to monitor any issues.
