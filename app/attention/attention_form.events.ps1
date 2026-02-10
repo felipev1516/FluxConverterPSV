@@ -67,23 +67,7 @@ $update_file_error_prompt = {
 }
 
 $Yes_Reset_Button_click = {
-    $Project_TextBox.Text = "" 
-    $Bug_TextBox.Text = "" 
-    $Device_List.SelectedIndex = 0
-    $Branch_List.SelectedIndex = 0 
-    $Build_TextBox.Text = "" 
-    $Quality_List.SelectedIndex	= 0
-    $Check_Box.Checked = $False
-    $Nvidia_Box.Checked = $False
-    $verify_cbx.Checked = $False
-    $Video_TextBox.Text	= ""
-    $Picture_TextBox.Text = ""
-    $Text_TextBox.Text = ""
-    $fps_cbx.SelectedIndex = 0
-    $bit_cbx.SelectedIndex = 3
-    $frame_cbx.SelectedIndex = 1
-    $ratio_cbx.SelectedIndex = 0
-    $Attention_form.Close()
+    $Attention_form.DialogResult = [System.Windows.Forms.DialogResult]::Yes
 }
 
 $Prompt_Button_click = {
@@ -100,6 +84,10 @@ $Yes_Button_click = {
         # &$error_restart_prompt
         Start-Process -FilePath "$PSScriptroot\..\restart\restart_form.ps1" -ArgumentList "error_restart_prompt"
         }
+}
+
+$form_closing = {
+    $Attention_form.Dispose()
 }
 
 $No_Button_click = {$Attention_form.Close()}
